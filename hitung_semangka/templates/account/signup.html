@@ -1,0 +1,7 @@
+{% comment %} <h2>Daftar Akun Baru</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}  {{ form.captcha }}
+    <button type="submit">Daftar</button>
+</form>
+<p>Sudah punya akun? <a href="{% url 'login' %}">Login di sini</a></p> {% endcomment %}

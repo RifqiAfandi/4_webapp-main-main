@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deteksi Semangka - Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0f1220;
+      --panel: rgba(255,255,255,.08);
+      --panel-2: rgba(255,255,255,.10);
+      --border: rgba(255,255,255,.15);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,.85);
+      --brand: #56d9b4;
+      --brand-2: #33b79b;
+      --shadow: 0 18px 40px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: "Poppins", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(86,217,180,.18), transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, rgba(120,140,255,.14), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .app-shell { min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar-desktop {
+      width: 280px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      border-right: 1px solid var(--border);
+      background: rgba(10,12,20,.85);
+      backdrop-filter: blur(20px);
+    }
+
+    .brand-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: rgba(86,217,180,.25);
+      border: 1px solid rgba(86,217,180,.35);
+      color: var(--brand);
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .nav-pill {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      color: var(--text);
+      text-decoration: none;
+      border: 1px solid transparent;
+      font-weight: 500;
+      transition: all .2s ease;
+      margin-bottom: 8px;
+    }
+    .nav-pill:hover {
+      background: rgba(255,255,255,.10);
+      border-color: var(--border);
+      transform: translateX(4px);
+    }
+    .nav-pill.active {
+      background: rgba(86,217,180,.18);
+      border-color: rgba(86,217,180,.35);
+      color: var(--brand);
+      box-shadow: 0 4px 14px rgba(86,217,180,.18);
+    }
+    .nav-pill .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.30);
+      flex-shrink: 0;
+    }
+    .nav-pill.active .dot {
+      background: var(--brand);
+      box-shadow: 0 0 0 2px rgba(255,255,255,.2);
+    }
+
+    .main { padding: 32px 24px; }
+
+    .page-title {
+      font-weight: 800;
+      font-size: 2.2rem;
+      letter-spacing: -.5px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .page-subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin-bottom: 28px;
+    }
+
+    /* Cards */
+    .card-soft {
+      background: rgba(20,24,40,.95);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      color: #ffffff;
+    }
+
+    .card-soft .card-header {
+      background: transparent;
+      border-bottom: 1px solid var(--border);
+      padding: 18px 22px;
+    }
+
+    .card-soft .card-body { padding: 22px; }
+
+    /* Form */
+    .form-label {
+      color: var(--text);
+      font-weight: 600;
+      font-size: .95rem;
+      margin-bottom: 8px;
+    }
+
+    .form-select,
+    .form-control {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: .95rem;
+      transition: all .2s ease;
+    }
+
+    .form-select:focus,
+    .form-control:focus {
+      border-color: rgba(86,217,180,.45);
+      box-shadow: 0 0 0 .25rem rgba(86,217,180,.15);
+      background: rgba(255,255,255,.15);
+      color: var(--text);
+      outline: none;
+    }
+
+    .form-text {
+      color: var(--muted);
+      font-size: .85rem;
+      margin-top: 4px;
+    }
+
+    /* Buttons */
+    .btn-brand {
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      border: none;
+      color: #0a0f20;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 12px 24px;
+      box-shadow: 0 4px 15px rgba(86,217,180,.3);
+      transition: all .2s ease;
+    }
+    .btn-brand:hover {
+      background: linear-gradient(135deg, var(--brand-2), #2aa67f);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(86,217,180,.4);
+      color: #0a0f20;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 20px;
+      transition: all .2s ease;
+    }
+    .btn-ghost:hover {
+      background: rgba(255,255,255,.10);
+      border-color: rgba(255,255,255,.25);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    /* Stats */
+    .stat {
+      padding: 18px 18px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.15);
+      height: 100%;
+      transition: all .2s ease;
+    }
+    .stat:hover { transform: translateY(-3px); }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: .9rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .stat-value {
+      font-size: 2.0rem;
+      font-weight: 900;
+      letter-spacing: -.6px;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .stat-change {
+      font-size: .82rem;
+      color: var(--brand);
+      font-weight: 700;
+    }
+
+    /* Live item (new layout) */
+    .live-item{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 10px 36px rgba(0,0,0,.25);
+      transition: all .25s ease;
+    }
+    .live-item:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 20px 50px rgba(86,217,180,.20);
+      border-color: rgba(86,217,180,.35);
+    }
+
+    .live-inner{ padding: 18px; }
+
+    .live-frame{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      overflow: hidden;
+    }
+    .live-frame img{
+      display:block;
+      width: 100%;
+      height: auto;
+    }
+
+    .live-side{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(20,24,40,.55);
+      padding: 16px;
+    }
+
+    .kpi-title{
+      color: rgba(255,255,255,.78);
+      font-weight: 700;
+      font-size: .9rem;
+      margin-bottom: 6px;
+    }
+    .kpi-value{
+      font-size: 2.1rem;
+      font-weight: 900;
+      letter-spacing: -.6px;
+      margin: 0;
+      line-height: 1.1;
+    }
+    .kpi-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(86,217,180,.14);
+      border: 1px solid rgba(86,217,180,.25);
+      color: #dffbf3;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .meta-row{
+      display:flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+    .meta-label{
+      color: rgba(255,255,255,.70);
+      font-size: .85rem;
+    }
+    .meta-value{
+      color: rgba(255,255,255,.92);
+      font-weight: 700;
+      font-size: .9rem;
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 280px;
+    }
+
+    @media (min-width: 992px){
+      .live-side{
+        position: sticky;
+        top: 92px; /* aman dari navbar fixed-top di mobile */
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 991.98px) {
+      .main { padding: 20px 16px; }
+      .page-title { font-size: 1.75rem; }
+      .meta-value{ max-width: 100%; }
+    }
+
+    @media (max-width: 576px) {
+      .main { padding: 16px 12px; }
+      .stat-value { font-size: 1.7rem; }
+      .live-inner{ padding: 14px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Mobile Topbar -->
+  <nav class="navbar navbar-dark fixed-top d-lg-none py-2"
+       style="background: rgba(15,18,32,.98); border-bottom: 1px solid rgba(255,255,255,.15); backdrop-filter: blur(20px);">
+    <div class="container-fluid">
+      <button class="navbar-toggler btn btn-ghost p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMobile">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <span class="navbar-brand mb-0 h1 fw-bold text-truncate flex-grow-1 px-3">Deteksi Semangka</span>
+    </div>
+  </nav>
+
+  <!-- Mobile Sidebar -->
+  <div class="offcanvas offcanvas-start d-lg-none text-bg-dark" id="sidebarMobile"
+       style="background: rgba(15,18,32,.99); border-right: 1px solid rgba(255,255,255,.15);">
+    <div class="offcanvas-header border-bottom" style="border-color: rgba(255,255,255,.15);">
+      <h5 class="offcanvas-title fw-bold">Navigasi</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body pt-3">
+      <div class="d-flex align-items-center gap-3 mb-4 p-3"
+           style="background: rgba(86,217,180,.12); border-radius: 14px; border: 1px solid rgba(86,217,180,.25);">
+        <div class="brand-badge">🍉</div>
+        <div>
+          <div class="fw-bold">Deteksi Semangka</div>
+          <div class="small text-muted">Dashboard Utama</div>
+        </div>
+      </div>
+
+      <a href="#" class="nav-pill active">
+        <span class="dot"></span> Dashboard
+      </a>
+      <a href="{% url 'counter:history' %}"
+         class="nav-pill {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
+        <span class="dot"></span> History
+      </a>
+      <a href="{% url 'counter:logout' %}" class="nav-pill text-danger mt-4"
+         style="background: rgba(255, 71, 87, 0.1); border-color: rgba(255, 71, 87, 0.2);">
+        <span class="dot" style="background: #ff4757; box-shadow: none;"></span> Keluar Akun
+      </a>
+    </div>
+  </div>
+
+  <div class="container-fluid pt-4 pt-lg-0">
+    <div class="row app-shell">
+      <!-- Desktop Sidebar -->
+      <aside class="col-lg-3 col-xl-2 d-none d-lg-block sidebar-desktop">
+        <div class="d-flex align-items-center gap-3 mb-5 p-3"
+             style="background: rgba(86,217,180,.12); border-radius: 16px; border: 1px solid rgba(86,217,180,.25);">
+          <div class="brand-badge">🍉</div>
+          <div>
+            <div class="fw-bold fs-4">Deteksi Semangka</div>
+            <div class="text-muted small">Dashboard Utama</div>
+          </div>
+        </div>
+
+        <nav class="d-grid gap-2">
+          <a href="#" class="nav-pill active">
+            <span class="dot"></span> Dashboard
+          </a>
+          <a href="{% url 'counter:history' %}"
+             class="nav-pill {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
+            <span class="dot"></span> History
+          </a>
+          <a href="{% url 'counter:logout' %}" class="nav-pill text-danger mt-4"
+             style="background: rgba(255, 71, 87, 0.1); border-color: rgba(255, 71, 87, 0.2);">
+            <span class="dot" style="background: #ff4757; box-shadow: none;"></span> Keluar Akun
+          </a>
+        </nav>
+
+        <div class="mt-5 p-4 text-center"
+             style="background: rgba(255,255,255,.04); border: 1px dashed rgba(255,255,255,.25); border-radius: 16px; color: var(--muted);">
+          <div class="mb-2">💡 Tips</div>
+          <div class="small">Upload orthophoto resolusi tinggi (min. 2K) untuk akurasi deteksi maksimal.</div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="col-lg-9 col-xl-10 main">
+        <!-- Page Header -->
+        <header class="mb-4">
+          <h1 class="page-title mb-1">📊 Dashboard Deteksi Semangka</h1>
+          <p class="page-subtitle mb-0">
+            Upload orthophoto lahan, analisis otomatis dengan YOLO, dan pantau hasil secara realtime.
+          </p>
+        </header>
+
+        <!-- Stats Grid (2 item saja) -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6 col-lg-3">
+            <div class="stat h-100">
+              <div class="stat-label">Total Orthophoto</div>
+              <div class="stat-value" id="statTotalOrtho">{{ total_ortho|default:0 }}</div>
+              <div class="stat-change">Tersimpan</div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="stat h-100">
+              <div class="stat-label">Total Semangka</div>
+              <div class="stat-value" id="statTotalDeteksi">{{ total_detected|default:0 }}</div>
+              <div class="stat-change text-success">Terdeteksi</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+          <!-- Upload Card -->
+          <div class="col-xl-8">
+            <div class="card card-soft h-100">
+              <div class="card-header">
+                <h5 class="mb-0">📤 Upload Orthophoto</h5>
+              </div>
+              <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+
+                  <div class="row g-4">
+                    <div class="col-md-6">
+                      <label for="lahan" class="form-label">Lokasi Lahan</label>
+                      <select id="lahan" name="lahan" class="form-select" required>
+                        <option value="" disabled selected>Pilih Lahan</option>
+                        <option value="Jember">🌱 Jember</option>
+                        <option value="Kediri">🌿 Kediri</option>
+                      </select>
+                      <div class="form-text">Pilih lokasi lahan untuk tracking dan analisis.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="image" class="form-label">File Orthophoto</label>
+                      <input type="file" name="image" id="image" class="form-control" accept="image/*" required>
+                      <div class="form-text">JPG, PNG, TIFF (max 50MB).</div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-wrap gap-3 mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,.1);">
+                    <button type="submit" class="btn btn-brand px-5">🚀 Upload & Deteksi</button>
+                    <button type="reset" class="btn btn-ghost">🔄 Reset Form</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ready box -->
+          <div class="col-xl-4">
+            <div class="card card-soft h-100">
+              <div class="card-header">
+                <h5 class="mb-0">✅ Status</h5>
+              </div>
+              <div class="card-body text-center py-5">
+                <div class="text-white">
+                  <div class="mb-2 fw-bold">Siap Upload</div>
+                  <div class="small" style="color: rgba(255,255,255,.75);">Semua worker aktif.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Analysis -->
+        <div class="card-soft mb-4">
+          <div class="d-flex justify-content-between align-items-center p-4 border-bottom"
+               style="border-color: rgba(255,255,255,.1);">
+            <div>
+              <h5 class="mb-0">📊 Live Analisis</h5>
+              <small class="text-muted">1 hasil terbaru</small>
+            </div>
+            <span class="badge bg-success fs-6 px-3 py-2">Live 🍉</span>
+          </div>
+
+          <div id="liveList" class="p-4">
+            {% for result in latest %}
+              <div class="live-item">
+                <div class="live-inner">
+                  <div class="row g-3 align-items-start">
+                    <!-- KIRI: gambar -->
+                    <div class="col-lg-9">
+                      <div class="live-frame">
+                        <img src="{{ result.bbox_path }}"
+                             alt="Deteksi {{ result.manual_count|default:result.count }} semangka"
+                             loading="lazy">
+                      </div>
+                    </div>
+
+                    <!-- KANAN: info -->
+                    <div class="col-lg-3">
+                      <div class="live-side">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                          <div>
+                            <div class="kpi-title">Jumlah semangka terdeteksi</div>
+                            <p class="kpi-value mb-0">{{ result.manual_count|default:result.count }}</p>
+                          </div>
+                          <div class="kpi-badge">
+                            <span>🍉</span>
+                            <span>{{ result.manual_count|default:result.count }}</span>
+                          </div>
+                        </div>
+
+                        <div class="meta-row">
+                          <div class="meta-label">Nama file</div>
+                          <div class="meta-value" title="{{ result.filename }}">{{ result.filename }}</div>
+                        </div>
+                        <div class="meta-row">
+                          <div class="meta-label">Lahan</div>
+                          <div class="meta-value">{{ result.lahan }}</div>
+                        </div>
+                        <div class="meta-row">
+                          <div class="meta-label">Waktu</div>
+                          <div class="meta-value">{{ result.created_at|date:"d M Y, H:i" }}</div>
+                        </div>
+                        <div class="meta-row">
+                          <div class="meta-label">Status</div>
+                          <div class="meta-value" style="color: var(--brand);">Terdeteksi</div>
+                        </div>
+<!-- 
+                        <div class="mt-3 small" style="color: rgba(255,255,255,.70);">
+                          Tips: Koreksi bounding box bisa dilakukan di menu History.
+                        </div> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="text-center py-5" style="color: rgba(255,255,255,.75);">
+                <div class="mb-3 fs-1">📈</div>
+                <h4 class="mb-2" style="color:#fff;">Belum ada hasil deteksi</h4>
+                <p class="mb-0">Upload orthophoto pertama kamu untuk melihat hasil analisis otomatis.</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const socket = new WebSocket(`${wsScheme}://${window.location.host}/ws/dashboard/`);
+
+    socket.onopen = () => console.log('✅ WebSocket ready');
+    socket.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'done') {
+        const elOrtho = document.getElementById('statTotalOrtho');
+        const elDet = document.getElementById('statTotalDeteksi');
+        if (elOrtho) elOrtho.textContent = msg.total_orthophoto;
+        if (elDet) elDet.textContent = msg.total_detected;
+      }
+    };
+  </script>
+</body>
+</html>

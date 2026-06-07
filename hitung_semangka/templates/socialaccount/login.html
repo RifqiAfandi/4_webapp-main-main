@@ -1,0 +1,30 @@
+{% load i18n %}
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lanjutkan Login</title>
+  <style>
+    body { font-family: system-ui, Arial; background:#f6f7fb; margin:0; }
+    .wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+    .card { width:100%; max-width:420px; background:#fff; border:1px solid #e9e9ef; border-radius:14px; padding:22px; }
+    h1 { margin:0 0 6px; font-size:20px; }
+    .muted { color:#666; margin:0 0 16px; font-size:14px; }
+    .btn { width:100%; display:block; padding:10px 12px; border-radius:10px; border:1px solid #ddd; background:#111; color:#fff; text-align:center; text-decoration:none; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>{% trans "Lanjutkan" %}</h1>
+      <p class="muted">{% trans "Klik untuk melanjutkan login dengan Google." %}</p>
+
+      <form method="post">
+        {% csrf_token %}
+        <button class="btn" type="submit">{% trans "Continue" %}</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

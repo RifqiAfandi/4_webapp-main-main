@@ -1,0 +1,13 @@
+{% comment %} <h2>Login Dari hitung_semangka\templates\account\login.html</h2>
+{% if messages %}
+    {% for message in messages %}
+        <p style="color: red;">{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Masuk</button>
+</form>
+<p>Belum punya akun? <a href="{% url 'counter:signup' %}">Daftar di sini</a></p> {% endcomment %}

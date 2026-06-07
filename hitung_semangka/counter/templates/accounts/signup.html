@@ -1,0 +1,181 @@
+{% extends "accounts/base_auth.html" %}
+{% load socialaccount %}
+
+{% block title %}<title>Daftar • Deteksi Semangka</title>{% endblock %}
+
+{% block extra_css %}
+<style>
+  .auth-card{ width:100%; max-width: 560px; }
+
+  .auth-top{
+    display:flex;
+    justify-content:center; /* center logo */
+    margin-bottom: 10px;
+  }
+  .logo{
+    width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+    background: rgba(86,217,180,.22);
+    border: 1px solid rgba(86,217,180,.35);
+    color: var(--brand);
+    font-weight:800;font-size:1.35rem;
+  }
+
+  .auth-mid{ padding-top: 2px; }
+  .auth-title{
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: -.3px;
+    font-size: 1.15rem;
+  }
+  .auth-subtitle{
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: .9rem;
+  }
+
+  .auth-form{ margin-top: 16px; }
+  .auth-form p{ margin-bottom: 14px; }
+
+  .auth-form label{
+    display:inline-block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: rgba(255,255,255,.92);
+  }
+
+  .auth-form input[type="text"],
+  .auth-form input[type="email"],
+  .auth-form input[type="password"],
+  .auth-form input[type="number"],
+  .auth-form select,
+  .auth-form textarea{
+    width:100%;
+    padding:12px 14px;
+    border-radius:14px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.14);
+    color:#fff;
+    outline:none;
+    transition:.2s ease;
+  }
+
+  .auth-form input:focus,
+  .auth-form select:focus,
+  .auth-form textarea:focus{
+    border-color: rgba(86,217,180,.55);
+    box-shadow: 0 0 0 .25rem rgba(86,217,180,.15);
+    background: rgba(255,255,255,.08);
+  }
+
+  /* helptext password: kecil + rapi */
+  .auth-form .helptext{
+    display:block;
+    margin-top: 6px;
+    font-size: .78rem;
+    line-height: 1.35;
+    color: rgba(255,255,255,.72);
+  }
+  .auth-form ul{
+    margin: 6px 0 0;
+  }
+  .auth-form ul li{
+    font-size: .78rem;
+    line-height: 1.35;
+    color: rgba(255,255,255,.72);
+  }
+
+  .auth-form ul.errorlist{
+    list-style:none;
+    padding-left:0;
+    margin:6px 0 0;
+  }
+  .auth-form ul.errorlist li{
+    color:#ffb3b3;
+    font-size:.9rem;
+  }
+
+  .btn-brand{
+    --bs-btn-color:#081016;
+    --bs-btn-bg: var(--brand);
+    --bs-btn-border-color: rgba(86,217,180,.65);
+    --bs-btn-hover-bg: var(--brand-2);
+    --bs-btn-hover-border-color: rgba(86,217,180,.75);
+    font-weight:800;
+    border-radius:14px;
+    padding:12px 14px;
+  }
+
+  .btn-ghost-soft{
+    border-radius:14px;
+    padding:12px 14px;
+    border:1px solid rgba(255,255,255,.16);
+    background: rgba(255,255,255,.06);
+    color:#fff;
+  }
+  .btn-ghost-soft:hover{
+    background: rgba(255,255,255,.10);
+    border-color: rgba(255,255,255,.22);
+    color:#fff;
+  }
+
+  .divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:18px 0;
+    color: rgba(255,255,255,.75);
+    font-size:.9rem;
+  }
+  .divider::before,.divider::after{
+    content:"";
+    height:1px;
+    flex:1;
+    background: rgba(255,255,255,.14);
+  }
+
+  .auth-footer{
+    margin-top: 14px;
+    text-align:center;
+    color: var(--muted);
+  }
+  .auth-footer a{
+    color: var(--brand);
+    text-decoration:none;
+    font-weight:700;
+  }
+  .auth-footer a:hover{ text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-card card-soft">
+  <div class="card-body p-4 p-md-5">
+    <div class="auth-top">
+      <div class="logo">🍉</div>
+    </div>
+
+    <div class="auth-mid text-center">
+      <h1 class="auth-title">Daftar</h1>
+      <p class="auth-subtitle">Buat akun baru untuk mulai menggunakan aplikasi.</p>
+    </div>
+
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-brand w-100">Daftar</button>
+    </form>
+
+    <div class="divider">atau</div>
+
+    <a class="btn btn-ghost-soft w-100 d-flex align-items-center justify-content-center gap-2"
+       href="{% provider_login_url 'google' %}">
+      <span style="width:10px;height:10px;border-radius:50%;background:#4285F4;display:inline-block"></span>
+      Daftar dengan Google
+    </a>
+
+    <div class="auth-footer">
+      Sudah punya akun? <a href="{% url 'counter:login' %}">Masuk di sini</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

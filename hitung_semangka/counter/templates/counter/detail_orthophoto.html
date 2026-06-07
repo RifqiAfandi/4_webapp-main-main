@@ -1,0 +1,282 @@
+<!-- templates/counter/detail_orthophoto.html -->
+{% extends "base.html" %}
+
+{% block title %}
+<title>Detail Orthophoto - {{ result.filename }}</title>
+{% endblock %}
+
+{% block content %}
+  <header class="mb-5">
+    <h1 class="page-title mb-1">🔍 Detail Orthophoto</h1>
+    <p class="page-subtitle mb-0">
+      {{ result.filename }} – {{ result.lahan }} |
+      Semangka:
+      <span id="count">
+        {% if result.manual_count > 0 %}
+          {{ result.manual_count }}
+        {% else %}
+          {{ result.count }}
+        {% endif %}
+      </span>
+    </p>
+  </header>
+
+  <div class="card-soft mb-5">
+    <div class="card-body p-4">
+      <!-- Gambar + bbox overlay -->
+      <div class="image-container">
+        <div class="image-wrapper">
+          <img id="orthophoto"
+               src="{{ result.bbox_path }}"
+               alt="Orthophoto {{ result.filename }}">
+
+          {# render ulang semua bbox dari DB #}
+          {% for b in boxes %}
+          <div class="bbox"
+               data-x1="{{ b.x1 }}"
+               data-y1="{{ b.y1 }}"
+               data-x2="{{ b.x2 }}"
+               data-y2="{{ b.y2 }}">
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Tombol -->
+      <div class="controls d-flex flex-wrap gap-3 justify-content-center">
+        <button type="button"
+                class="btn btn-success detail-btn"
+                onclick="saveBoxes()">
+          💾 Simpan Bounding Box
+        </button>
+
+        <button type="button"
+                class="btn btn-danger detail-btn"
+                onclick="deleteSelected()">
+          🗑️ Hapus Kotak Terpilih
+        </button>
+
+        <button type="button"
+                class="btn btn-primary detail-btn"
+                onclick="window.history.back()">
+          ⬅️ Kembali
+        </button>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .image-container {
+      display: flex;
+      justify-content: center; /* center horizontal di dalam card */
+    }
+
+    .image-wrapper {
+      position: relative;
+      display: inline-block;
+      max-width: 90vw;
+      max-height: 80vh;
+    }
+
+    .image-wrapper img {
+      display: block;
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 14px;
+      border: 2px solid rgba(255,255,255,.15);
+    }
+
+    .bbox {
+      position: absolute;
+      border: 2px solid var(--brand);
+      background: rgba(86,217,180,0.15);
+      cursor: pointer;
+      border-radius: 4px;
+      z-index: 10;
+    }
+
+    .bbox.selected {
+      border-color: #ff5722;
+      background: rgba(255,87,34,0.2);
+    }
+
+    .controls {
+      margin-top: 16px;
+    }
+
+    .detail-btn {
+      min-width: 220px;
+      font-weight: 600;
+      border-radius: 12px;
+      padding: 10px 24px;
+      box-shadow: 0 6px 14px rgba(0,0,0,.45);
+      border-width: 0;
+    }
+
+    .detail-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(0,0,0,.6);
+    }
+
+    @media (max-width: 576px) {
+      .detail-btn {
+        width: 100%;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let drawing = false;
+  let startX, startY;
+  let currentBox = null;
+  let selectedBox = null;
+
+  function log(msg) {
+    console.log("[BBOX]", msg);
+  }
+
+  function updateCount() {
+    const boxes = document.querySelectorAll('.bbox');
+    document.getElementById('count').textContent = boxes.length;
+  }
+
+  function selectBox(box) {
+    if (selectedBox) selectedBox.classList.remove('selected');
+    selectedBox = box;
+    box.classList.add('selected');
+  }
+
+  function deleteSelected() {
+    if (selectedBox) {
+      selectedBox.remove();
+      selectedBox = null;
+      updateCount();
+    }
+  }
+
+  function saveBoxes() {
+    const boxes = Array.from(document.querySelectorAll('.bbox')).map(box => {
+      const style = window.getComputedStyle(box);
+      return {
+        x1: parseFloat(style.left),
+        y1: parseFloat(style.top),
+        x2: parseFloat(style.left) + parseFloat(style.width),
+        y2: parseFloat(style.top) + parseFloat(style.height),
+      };
+    });
+
+    fetch(`/api/save_boxes/{{ result.id }}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}',
+      },
+      body: JSON.stringify({ boxes }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('count').textContent = data.count;
+      alert('Bounding box berhasil disimpan! Jumlah semangka: ' + data.count);
+    });
+  }
+
+  function getPosInImage(e, img) {
+    const rect = img.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+      inside: (
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom
+      ),
+      rect: rect
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const img = document.getElementById('orthophoto');
+
+    // matikan drag bawaan browser di gambar
+    img.setAttribute('draggable', 'false');
+    img.addEventListener('dragstart', e => e.preventDefault());
+
+    // set width/height untuk bbox yang dirender dari DB
+    document.querySelectorAll('.bbox').forEach(box => {
+      const x1 = parseFloat(box.dataset.x1);
+      const y1 = parseFloat(box.dataset.y1);
+      const x2 = parseFloat(box.dataset.x2);
+      const y2 = parseFloat(box.dataset.y2);
+      box.style.left = x1 + 'px';
+      box.style.top = y1 + 'px';
+      box.style.width = (x2 - x1) + 'px';
+      box.style.height = (y2 - y1) + 'px';
+      box.addEventListener('click', () => selectBox(box));
+    });
+
+    // MOUSE DOWN
+    document.addEventListener('mousedown', e => {
+      const pos = getPosInImage(e, img);
+      if (!pos.inside) return;
+
+      log('mousedown di gambar');
+      drawing = true;
+      startX = pos.x;
+      startY = pos.y;
+
+      currentBox = document.createElement('div');
+      currentBox.classList.add('bbox');
+      currentBox.style.left = startX + 'px';
+      currentBox.style.top = startY + 'px';
+      currentBox.style.width = '0px';
+      currentBox.style.height = '0px';
+
+      img.parentElement.appendChild(currentBox);
+    });
+
+    // MOUSE MOVE
+    document.addEventListener('mousemove', e => {
+      if (!drawing || !currentBox) return;
+      const pos = getPosInImage(e, img);
+      const x = Math.min(Math.max(pos.x, 0), pos.rect.width);
+      const y = Math.min(Math.max(pos.y, 0), pos.rect.height);
+
+      const left = Math.min(startX, x);
+      const top = Math.min(startY, y);
+      const width = Math.abs(x - startX);
+      const height = Math.abs(y - startY);
+
+      currentBox.style.left = left + 'px';
+      currentBox.style.top = top + 'px';
+      currentBox.style.width = width + 'px';
+      currentBox.style.height = height + 'px';
+    });
+
+    // MOUSE UP
+    document.addEventListener('mouseup', e => {
+      if (!drawing) return;
+      drawing = false;
+      log('mouseup, selesai gambar');
+
+      if (currentBox) {
+        const w = parseFloat(currentBox.style.width);
+        const h = parseFloat(currentBox.style.height);
+        if (w < 5 || h < 5) {
+          currentBox.remove();
+        } else {
+          currentBox.addEventListener('click', () => selectBox(currentBox));
+        }
+      }
+      currentBox = null;
+      updateCount();
+    });
+
+    updateCount();
+  });
+</script>
+{% endblock %}

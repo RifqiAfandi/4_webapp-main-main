@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Deteksi Semangka</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        img {
+            max-width: 80%;
+            height: auto;
+            border: 2px solid #ccc;
+        }
+        .result-container {
+            margin-top: 20px;
+        }
+        .result-container h1 {
+            font-size: 32px;
+        }
+        .result-container p {
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="result-container">
+        <h1>Hasil Deteksi Semangka</h1>
+        <p>Total Semangka yang Ditemukan: {{ count }}</p>
+        <img src="{{ img_with_boxes_url }}" alt="Uploaded Image with Bounding Boxes">
+    </div>
+</body>
+</html>
