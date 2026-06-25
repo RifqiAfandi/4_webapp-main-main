@@ -6,6 +6,12 @@ import os
 import numpy as np
 import tifffile as tiff
 
+# ── Konstanta filtering ───────────────────────────────────────────────────────
+# Bbox minimum size (px) — buang deteksi yang terlalu kecil (bukan semangka)
+MIN_BBOX_SIZE = 15
+# Margin tepi tile (px) — buang deteksi yang menyentuh tepi tile (objek terpotong)
+EDGE_MARGIN = 5
+
 # ── Robust Mapping kelas / range berat ke info standar ────────────────────────
 BOBOT_MAP = {
     # Format 1: Model mengembalikan nama kelas 'kelas1', 'kelas2', dst. (seperti plan/best.pt)
@@ -142,13 +148,32 @@ def _annotate(img: np.ndarray, detections: list) -> np.ndarray:
     return img_out
 
 
+def _is_edge_detection(bx1, by1, bx2, by2, tile_w, tile_h, margin=EDGE_MARGIN):
+    """Cek apakah bbox menyentuh tepi tile (objek kemungkinan terpotong)."""
+    if bx1 <= margin or by1 <= margin:
+        return True
+    if bx2 >= tile_w - margin or by2 >= tile_h - margin:
+        return True
+    return False
+
+
 def _nms_global(detections: list, iou_threshold: float = 0.5) -> list:
+    """
+    Non-Maximum Suppression global dengan centrality-aware scoring.
+    Saat 2 deteksi overlap (IoU tinggi), prioritaskan deteksi yang:
+      1. Memiliki centrality score lebih tinggi (lebih di tengah tile)
+      2. Bukan hasil dari objek terpotong di tepi tile
+    Ini mengurangi mismatch klasifikasi akibat tiling.
+    """
     if not detections:
         return []
 
     boxes  = np.array([[d["bbox"][0], d["bbox"][1],
                         d["bbox"][2], d["bbox"][3]] for d in detections])
-    scores = np.array([d["conf"] for d in detections])
+    scores = np.array([
+        d["conf"] * d.get("centrality", 1.0)
+        for d in detections
+    ])
     keep   = []
     idxs   = np.argsort(scores)[::-1]
 
@@ -178,6 +203,12 @@ def estimate_bobot(image_path: str, conf: float = 0.15,
     """
     Deteksi semangka dari orthophoto dengan teknik tiling,
     dan kategorikan berdasarkan kelas marker yang merepresentasikan range berat buah.
+
+    Perbaikan v2:
+    - Filter bbox minimum size (buang artifact/noise)
+    - Filter deteksi di tepi tile (objek terpotong → klasifikasi salah)
+    - Padding tile kecil agar skala konsisten
+    - NMS dengan centrality score (prioritaskan deteksi di tengah tile)
     """
     model = get_bobot_model()
     img = _load_image(image_path)
@@ -192,6 +223,8 @@ def estimate_bobot(image_path: str, conf: float = 0.15,
 
     detections_raw = []
     tile_count = 0
+    filtered_small = 0
+    filtered_edge  = 0
 
     for row in range(rows):
         for col in range(cols):
@@ -201,11 +234,21 @@ def estimate_bobot(image_path: str, conf: float = 0.15,
             y2_t = min(y1_t + tile_size, H)
             tile = img[y1_t:y2_t, x1_t:x2_t]
 
+            tile_h, tile_w = tile.shape[:2]
+
+            # Padding tile kecil agar skala objek konsisten
+            if tile_h < tile_size or tile_w < tile_size:
+                padded = np.zeros((tile_size, tile_size, 3), dtype=np.uint8)
+                padded[:tile_h, :tile_w] = tile
+                tile_for_predict = padded
+            else:
+                tile_for_predict = tile
+
             tile_count += 1
             print(f"   Tile {tile_count}/{total_tiles} [x:{x1_t}-{x2_t}, y:{y1_t}-{y2_t}]", end="\r")
 
             results = model.predict(
-                source=tile, iou=0.5, conf=conf,
+                source=tile_for_predict, iou=0.5, conf=conf,
                 imgsz=tile_size, verbose=False
             )
             boxes = results[0].boxes
@@ -216,6 +259,35 @@ def estimate_bobot(image_path: str, conf: float = 0.15,
                 confs   = boxes.conf.cpu().numpy().tolist()
 
                 for (bx1, by1, bx2, by2), cls_id, conf_val in zip(bboxes, cls_ids, confs):
+
+                    bbox_w = bx2 - bx1
+                    bbox_h = by2 - by1
+
+                    # Filter 1: Bbox minimum size
+                    if bbox_w < MIN_BBOX_SIZE or bbox_h < MIN_BBOX_SIZE:
+                        filtered_small += 1
+                        continue
+
+                    # Filter 2: Buang bbox di area padding
+                    if bx1 >= tile_w or by1 >= tile_h:
+                        continue
+                    bx2 = min(bx2, tile_w)
+                    by2 = min(by2, tile_h)
+
+                    # Filter 3: Deteksi di tepi tile
+                    is_edge = _is_edge_detection(
+                        bx1, by1, bx2, by2, tile_w, tile_h)
+                    if is_edge:
+                        filtered_edge += 1
+                        continue
+
+                    # Hitung centrality score
+                    cx = (bx1 + bx2) / 2
+                    cy = (by1 + by2) / 2
+                    dist_x = abs(cx - tile_w / 2) / (tile_w / 2)
+                    dist_y = abs(cy - tile_h / 2) / (tile_h / 2)
+                    centrality = 1.0 - 0.3 * max(dist_x, dist_y)
+
                     # Robust Mapping
                     kelas_raw = class_names.get(cls_id, f"kelas{cls_id+1}")
                     info = BOBOT_MAP.get(kelas_raw, {
@@ -235,11 +307,24 @@ def estimate_bobot(image_path: str, conf: float = 0.15,
                         "range_bobot": range_bobot,
                         "warna_marker": marker,
                         "conf": round(conf_val, 3),
+                        "centrality": round(centrality, 3),
                     })
 
     print(f"\n   Deteksi sebelum NMS : {len(detections_raw)} box")
+    print(f"   Difilter (terlalu kecil) : {filtered_small}")
+    print(f"   Difilter (tepi tile)     : {filtered_edge}")
     detections = _nms_global(detections_raw)
     print(f"   Deteksi setelah NMS : {len(detections)} box")
+
+    # Diagnostic: distribusi kelas
+    print(f"\n   📊 Distribusi kelas:")
+    class_dist = {}
+    for det in detections:
+        k = det.get("range_bobot", det["kelas"])
+        class_dist[k] = class_dist.get(k, 0) + 1
+    for k in sorted(class_dist.keys()):
+        pct = class_dist[k] / len(detections) * 100 if detections else 0
+        print(f"      {k}: {class_dist[k]} ({pct:.1f}%)")
 
     # Rekap per kelas
     rekap = {}
