@@ -1,3 +1,4 @@
+{% load bobot_tags %}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -334,6 +335,63 @@
       .stat-value { font-size: 1.7rem; }
       .live-inner{ padding: 14px; }
     }
+    /* Feature selector box */
+    .feature-box {
+      border: 1px solid var(--border);
+      transition: all .2s ease;
+    }
+    .feature-radio:checked + .feature-box {
+      border-color: rgba(86,217,180,.55);
+      background: rgba(86,217,180,.14);
+      box-shadow: 0 4px 14px rgba(86,217,180,.18);
+    }
+
+    /* Zoom wrapper */
+    .zoom-wrapper { border-radius: 16px; }
+    .zoomable-img { width: 100%; height: auto; cursor: grab; touch-action: none; }
+    .zoomable-img:active { cursor: grabbing; }
+
+    .text-muted {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .live-frame-fixed {
+      height: 480px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      overflow: hidden;
+      position: relative;
+    }
+    .live-frame-fixed .zoom-wrapper {
+      flex: 1;
+      height: 100%;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .live-frame-fixed img {
+      max-height: 100%;
+      max-width: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+    .live-side-fixed {
+      height: 480px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.2) transparent;
+    }
   </style>
 </head>
 
@@ -424,7 +482,20 @@
           </p>
         </header>
 
-        <!-- Stats Grid (2 item saja) -->
+        <!-- Messages Alert Block -->
+        {% if messages %}
+          <div class="messages mb-4">
+            {% for message in messages %}
+              <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %} alert-dismissible fade show" role="alert" style="border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid {% if message.tags == 'error' %}#ff4757{% elif message.tags == 'success' %}#56d9b4{% else %}rgba(255,255,255,0.25){% endif %}; color: #fff;">
+                {{ message }}
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Stats Grid -->
+        {% get_latest_bobot as latest_bobot_obj %}
         <div class="row g-3 mb-4">
           <div class="col-md-6 col-lg-3">
             <div class="stat h-100">
@@ -440,6 +511,19 @@
               <div class="stat-change text-success">Terdeteksi</div>
             </div>
           </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="stat h-100">
+              <div class="stat-label">Kategori Dominan</div>
+              <div class="stat-value" style="font-size:1.4rem;">{{ latest_bobot_obj.range_dominan|default:"-" }}</div>
+              <div class="stat-change">
+                {% if latest_bobot_obj %}
+                  Kelas {{ latest_bobot_obj.kelas_dominan|slice:"5:" }} &bull; {{ latest_bobot_obj.jumlah_dominan }} buah
+                {% else %}
+                  Belum ada data
+                {% endif %}
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="row g-4 mb-4">
@@ -450,7 +534,30 @@
                 <h5 class="mb-0">📤 Upload Orthophoto</h5>
               </div>
               <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
+
+                <!-- Pilihan Fitur -->
+                <label class="form-label">Pilih Fitur</label>
+                <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                    <input type="radio" name="fitur" id="fiturSemangka" value="semangka" class="d-none feature-radio" checked>
+                    <label for="fiturSemangka" class="stat h-100 d-block feature-box" style="cursor:pointer;">
+                      <div class="stat-label">🍉 Hitung Semangka</div>
+                      <div class="small" style="color: var(--muted);">Hitung jumlah semangka pada lahan.</div>
+                    </label>
+                  </div>
+                  <div class="col-md-6">
+                    <input type="radio" name="fitur" id="fiturBobot" value="bobot" class="d-none feature-radio">
+                    <label for="fiturBobot" class="stat h-100 d-block feature-box" style="cursor:pointer;">
+                      <div class="stat-label">⚖️ Hitung Bobot</div>
+                      <div class="small" style="color: var(--muted);">Klasifikasi semangka berdasarkan kategori bobot.</div>
+                    </label>
+                  </div>
+                </div>
+
+                <form method="POST"
+                      enctype="multipart/form-data"
+                      id="uploadForm"
+                      action="{% url 'counter:home' %}">
                   {% csrf_token %}
 
                   <div class="row g-4">
@@ -467,7 +574,7 @@
                     <div class="col-md-6">
                       <label for="image" class="form-label">File Orthophoto</label>
                       <input type="file" name="image" id="image" class="form-control" accept="image/*" required>
-                      <div class="form-text">JPG, PNG, TIFF (max 50MB).</div>
+                      <div class="form-text">JPG, PNG, TIFF.</div>
                     </div>
                   </div>
 
@@ -496,78 +603,118 @@
           </div>
         </div>
 
-        <!-- Live Analysis -->
-        <div class="card-soft mb-4">
-          <div class="d-flex justify-content-between align-items-center p-4 border-bottom"
-               style="border-color: rgba(255,255,255,.1);">
-            <div>
-              <h5 class="mb-0">📊 Live Analisis</h5>
-              <small class="text-muted">1 hasil terbaru</small>
+        <!-- Live Analysis Semangka Container -->
+        <div id="liveAnalysisSemangka" class="live-analysis-section">
+          <!-- Live Analysis -->
+          <div class="card-soft mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center p-4 border-bottom gap-3"
+                 style="border-color: rgba(255,255,255,.1);">
+              <div>
+                <h5 class="mb-0">📊 Live Analisis Deteksi Semangka</h5>
+                <small class="text-muted">Pilih hasil deteksi untuk ditampilkan</small>
+              </div>
+              <div class="d-flex align-items-center gap-3">
+                {% if all_results_list %}
+                  <select id="selectSemangkaResult" class="form-select form-select-sm" style="min-width: 250px; background: var(--panel-2); border-color: var(--border); color: #fff; border-radius: 10px;">
+                    {% for r in all_results_list %}
+                      <option value="{{ r.pk }}">{{ r.filename|slice:"-25:" }} ({{ r.created_at|date:"d M, H:i" }})</option>
+                    {% endfor %}
+                  </select>
+                {% endif %}
+                <span class="badge bg-success fs-6 px-3 py-2">Live 🍉</span>
+              </div>
             </div>
-            <span class="badge bg-success fs-6 px-3 py-2">Live 🍉</span>
-          </div>
 
-          <div id="liveList" class="p-4">
-            {% for result in latest %}
-              <div class="live-item">
-                <div class="live-inner">
-                  <div class="row g-3 align-items-start">
-                    <!-- KIRI: gambar -->
-                    <div class="col-lg-9">
-                      <div class="live-frame">
-                        <img src="{{ result.bbox_path }}"
-                             alt="Deteksi {{ result.manual_count|default:result.count }} semangka"
-                             loading="lazy">
-                      </div>
-                    </div>
-
-                    <!-- KANAN: info -->
-                    <div class="col-lg-3">
-                      <div class="live-side">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                          <div>
-                            <div class="kpi-title">Jumlah semangka terdeteksi</div>
-                            <p class="kpi-value mb-0">{{ result.manual_count|default:result.count }}</p>
-                          </div>
-                          <div class="kpi-badge">
-                            <span>🍉</span>
-                            <span>{{ result.manual_count|default:result.count }}</span>
+            <div id="liveList" class="p-4">
+              {% for result in all_results_list %}
+                <div class="live-item-wrapper semangka-result-item" id="semangkaResult_{{ result.pk }}" style="{% if not forloop.first %}display: none;{% endif %}">
+                  <div class="live-item">
+                    <div class="live-inner">
+                      <div class="row g-3 align-items-stretch">
+                        <!-- KIRI: gambar -->
+                        <div class="col-lg-9">
+                          <div class="live-frame live-frame-fixed">
+                            <div class="zoom-wrapper">
+                              <img src="{{ result.bbox_path }}"
+                                   alt="Deteksi {{ result.manual_count|default:result.count }} semangka"
+                                   class="zoomable-img"
+                                   loading="lazy">
+                            </div>
+                            <div class="d-flex gap-2 mt-2 px-2 pb-2">
+                              <button class="btn btn-ghost btn-sm zoom-reset-btn" type="button">&#x1F504; Reset Zoom</button>
+                              <span class="small" style="color: var(--muted); align-self:center;">
+                                Scroll untuk zoom, drag untuk geser
+                              </span>
+                            </div>
                           </div>
                         </div>
 
-                        <div class="meta-row">
-                          <div class="meta-label">Nama file</div>
-                          <div class="meta-value" title="{{ result.filename }}">{{ result.filename }}</div>
+                        <!-- KANAN: info -->
+                        <div class="col-lg-3">
+                          <div class="live-side live-side-fixed">
+                            <div>
+                              <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                  <div class="kpi-title">Jumlah semangka terdeteksi</div>
+                                  <p class="kpi-value mb-0">{{ result.manual_count|default:result.count }}</p>
+                                </div>
+                                <div class="kpi-badge">
+                                  <span>🍉</span>
+                                  <span>{{ result.manual_count|default:result.count }}</span>
+                                </div>
+                              </div>
+
+                              <div class="meta-row">
+                                <div class="meta-label">Nama file</div>
+                                <div class="meta-value" title="{{ result.filename }}">{{ result.filename }}</div>
+                              </div>
+                              <div class="meta-row">
+                                <div class="meta-label">Lahan</div>
+                                <div class="meta-value">{{ result.lahan }}</div>
+                              </div>
+                              <div class="meta-row">
+                                <div class="meta-label">Waktu</div>
+                                <div class="meta-value">{{ result.created_at|date:"d M Y, H:i" }}</div>
+                              </div>
+                              <div class="meta-row">
+                                <div class="meta-label">Status</div>
+                                <div class="meta-value" style="color: var(--brand);">Terdeteksi</div>
+                              </div>
+                            </div>
+
+                            <!-- Tombol hapus semangka -->
+                            <div class="mt-3 pt-2" style="border-top: 1px solid rgba(255,255,255,.1);">
+                              <button
+                                class="btn btn-sm w-100 delete-semangka-btn"
+                                style="background:rgba(255,71,87,.12); border:1px solid rgba(255,71,87,.25); color:#ff4757;"
+                                data-pk="{{ result.pk }}"
+                                data-url="{% url 'counter:delete_result' result.pk %}"
+                                onclick="deleteSemangkaResult(this)"
+                                type="button">
+                                🗑️ Hapus Hasil Ini
+                              </button>
+                            </div>
+                          </div>
                         </div>
-                        <div class="meta-row">
-                          <div class="meta-label">Lahan</div>
-                          <div class="meta-value">{{ result.lahan }}</div>
-                        </div>
-                        <div class="meta-row">
-                          <div class="meta-label">Waktu</div>
-                          <div class="meta-value">{{ result.created_at|date:"d M Y, H:i" }}</div>
-                        </div>
-                        <div class="meta-row">
-                          <div class="meta-label">Status</div>
-                          <div class="meta-value" style="color: var(--brand);">Terdeteksi</div>
-                        </div>
-<!-- 
-                        <div class="mt-3 small" style="color: rgba(255,255,255,.70);">
-                          Tips: Koreksi bounding box bisa dilakukan di menu History.
-                        </div> -->
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            {% empty %}
-              <div class="text-center py-5" style="color: rgba(255,255,255,.75);">
-                <div class="mb-3 fs-1">📈</div>
-                <h4 class="mb-2" style="color:#fff;">Belum ada hasil deteksi</h4>
-                <p class="mb-0">Upload orthophoto pertama kamu untuk melihat hasil analisis otomatis.</p>
-              </div>
-            {% endfor %}
+              {% empty %}
+                <div class="text-center py-5" style="color: rgba(255,255,255,.75);">
+                  <div class="mb-3 fs-1">📈</div>
+                  <h4 class="mb-2" style="color:#fff;">Belum ada hasil deteksi</h4>
+                  <p class="mb-0">Upload orthophoto pertama kamu untuk melihat hasil analisis otomatis.</p>
+                </div>
+              {% endfor %}
+            </div>
           </div>
+        </div>
+
+        <!-- Live Analysis Bobot Container -->
+        <div id="liveAnalysisBobot" class="live-analysis-section" style="display: none;">
+          <!-- Live Analysis Bobot (baru) -->
+          {% live_bobot_terbaru %}
         </div>
 
       </main>
@@ -575,20 +722,186 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
   <script>
-    const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const socket = new WebSocket(`${wsScheme}://${window.location.host}/ws/dashboard/`);
+    // ── WebSocket (wrapped agar tidak blok JS lain jika gagal) ──
+    try {
+      const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const socket = new WebSocket(`${wsScheme}://${window.location.host}/ws/dashboard/`);
+      socket.onopen = () => console.log('WebSocket ready');
+      socket.onmessage = (e) => {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'done') {
+          const elOrtho = document.getElementById('statTotalOrtho');
+          const elDet = document.getElementById('statTotalDeteksi');
+          if (elOrtho) elOrtho.textContent = msg.total_orthophoto;
+          if (elDet) elDet.textContent = msg.total_detected;
+        }
+      };
+    } catch(e) { console.warn('WebSocket unavailable:', e); }
 
-    socket.onopen = () => console.log('✅ WebSocket ready');
-    socket.onmessage = (e) => {
-      const msg = JSON.parse(e.data);
-      if (msg.type === 'done') {
-        const elOrtho = document.getElementById('statTotalOrtho');
-        const elDet = document.getElementById('statTotalDeteksi');
-        if (elOrtho) elOrtho.textContent = msg.total_orthophoto;
-        if (elDet) elDet.textContent = msg.total_detected;
+    // ── Switch form action & live analysis visibility sesuai radio yang dipilih ──
+    const formUpload = document.getElementById('uploadForm');
+    const featureRadios = document.querySelectorAll('.feature-radio');
+    const urlSemangka = "{% url 'counter:home' %}";
+    const urlBobot = "{% url 'counter:hitung_bobot' %}";
+
+    const liveSemangka = document.getElementById('liveAnalysisSemangka');
+    const liveBobot = document.getElementById('liveAnalysisBobot');
+
+    function updateVisibility() {
+      const checkedRadio = document.querySelector('.feature-radio:checked');
+      if (!checkedRadio) return;
+      
+      const val = checkedRadio.value;
+      if (formUpload) {
+        formUpload.action = (val === 'bobot') ? urlBobot : urlSemangka;
+      }
+      
+      if (val === 'bobot') {
+        if (liveSemangka) liveSemangka.style.display = 'none';
+        if (liveBobot) liveBobot.style.display = 'block';
+      } else {
+        if (liveSemangka) liveSemangka.style.display = 'block';
+        if (liveBobot) liveBobot.style.display = 'none';
+      }
+    }
+
+    // Set action & visibility sesuai URL saat ini
+    if (window.location.pathname.startsWith('/bobot')) {
+      const bobotRadio = document.getElementById('fiturBobot');
+      if (bobotRadio) bobotRadio.checked = true;
+    } else {
+      const semangkaRadio = document.getElementById('fiturSemangka');
+      if (semangkaRadio) semangkaRadio.checked = true;
+    }
+
+    updateVisibility();
+
+    featureRadios.forEach(r => {
+      r.addEventListener('change', updateVisibility);
+    });
+
+    // ── Loading state saat submit form ──
+    if (formUpload) {
+      formUpload.addEventListener('submit', (e) => {
+        if (!formUpload.checkValidity()) {
+          return;
+        }
+        
+        const checkedRadio = document.querySelector('.feature-radio:checked');
+        const val = checkedRadio ? checkedRadio.value : 'semangka';
+        const targetContainer = (val === 'bobot') ? liveBobot : liveSemangka;
+        
+        if (targetContainer) {
+          targetContainer.innerHTML = `
+            <div class="card-soft mb-4">
+              <div class="d-flex justify-content-between align-items-center p-4 border-bottom" style="border-color: rgba(255,255,255,.1);">
+                <div>
+                  <h5 class="mb-0">${val === 'bobot' ? '⚖️ Live Analisis Bobot Semangka' : '📊 Live Analisis Deteksi Semangka'}</h5>
+                  <small class="text-muted">Sedang menganalisis...</small>
+                </div>
+                <span class="badge bg-warning text-dark fs-6 px-3 py-2">Menganalisis...</span>
+              </div>
+              <div class="card-body text-center py-5">
+                <div class="spinner-border mb-4" role="status" style="width: 3.5rem; height: 3.5rem; color: #56d9b4;">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <h4 class="text-white mb-2">Sedang Memproses Orthophoto...</h4>
+                <p class="text-muted mb-0">Model sedang mendeteksi dan mengklasifikasi objek. Proses ini memerlukan beberapa saat.</p>
+              </div>
+            </div>
+          `;
+          targetContainer.style.display = 'block';
+          const otherContainer = (val === 'bobot') ? liveSemangka : liveBobot;
+          if (otherContainer) otherContainer.style.display = 'none';
+        }
+      });
+    }
+
+    // ── Dropdown Switcher Hasil Deteksi ──
+    const selectSemangka = document.getElementById('selectSemangkaResult');
+    if (selectSemangka) {
+      selectSemangka.addEventListener('change', (e) => {
+        const selectedPk = e.target.value;
+        document.querySelectorAll('.semangka-result-item').forEach(item => {
+          if (item.id === `semangkaResult_${selectedPk}`) {
+            item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // Fungsi switcher untuk bobot, dipanggil saat selectBobot dideteksi (bisa dideklarasikan di sini agar di-bind saat tag dimuat)
+    window.initBobotSwitcher = function() {
+      const selectBobot = document.getElementById('selectBobotResult');
+      if (selectBobot) {
+        selectBobot.addEventListener('change', (e) => {
+          const selectedPk = e.target.value;
+          document.querySelectorAll('.bobot-result-item').forEach(item => {
+            if (item.id === `bobotResult_${selectedPk}`) {
+              item.style.display = 'block';
+            } else {
+              item.style.display = 'none';
+            }
+          });
+        });
       }
     };
+    
+    // Jalankan init switcher untuk bobot secara berkala / langsung
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.initBobotSwitcher) window.initBobotSwitcher();
+    });
+
+    // ── Delete result (semangka & bobot) via global handlers ──
+    window.deleteSemangkaResult = function(btn) {
+      if (!confirm('Hapus hasil deteksi semangka ini?')) return;
+      const url = btn.dataset.url;
+      fetch(url, {
+        method: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          location.reload();
+        } else {
+          alert('Gagal hapus: ' + (data.error || 'unknown'));
+        }
+      })
+      .catch(() => alert('Error jaringan saat hapus.'));
+    };
+
+    window.deleteBobotResult = function(btn) {
+      if (!confirm('Hapus hasil klasifikasi bobot ini?')) return;
+      const url = btn.dataset.url;
+      fetch(url, {
+        method: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          location.reload();
+        } else {
+          alert('Gagal hapus: ' + (data.error || 'unknown'));
+        }
+      })
+      .catch(() => alert('Error jaringan saat hapus.'));
+    };
+
+    // ── Panzoom ──
+    try {
+      document.querySelectorAll('.zoomable-img').forEach((img) => {
+        const panzoomInstance = Panzoom(img, { maxScale: 5, minScale: 1, contain: 'outside' });
+        img.parentElement.addEventListener('wheel', (e) => panzoomInstance.zoomWithWheel(e));
+        const resetBtn = img.closest('.live-frame')?.querySelector('.zoom-reset-btn');
+        if (resetBtn) resetBtn.addEventListener('click', () => panzoomInstance.reset());
+      });
+    } catch(e) { console.warn('Panzoom unavailable:', e); }
   </script>
 </body>
 </html>

@@ -7,30 +7,12 @@
 
 {% block content %}
   <!-- Page Header -->
-  <header class="mb-5">
-    <h1 class="page-title mb-1">📂 History Deteksi Semangka</h1>
+  <header class="mb-4">
+    <h1 class="page-title mb-1">📂 History Analisis Lahan</h1>
     <p class="page-subtitle mb-0">
-      Semua hasil upload sebelumnya, kecuali yang sedang live.
+      Semua hasil upload sebelumnya, baik deteksi jumlah maupun klasifikasi bobot.
     </p>
   </header>
-
-  <!-- Stats -->
-  <div class="row g-3 mb-5">
-    <div class="col-md-6 col-lg-3">
-      <div class="stat h-100">
-        <div class="stat-label">Total Orthophoto</div>
-        <div class="stat-value">{{ total_ortho|default:0 }}</div>
-        <div class="stat-change">Semua hasil</div>
-      </div>
-    </div>
-    <div class="col-md-6 col-lg-3">
-      <div class="stat h-100">
-        <div class="stat-label">Total Semangka</div>
-        <div class="stat-value">{{ total_detected|default:0 }}</div>
-        <div class="stat-change text-success">terdeteksi</div>
-      </div>
-    </div>
-  </div>
 
   <!-- STYLE KHUSUS HALAMAN HISTORY -->
   <style>
@@ -43,6 +25,11 @@
       display: flex;
       flex-direction: column;
       height: 100%;
+      transition: all 0.2s ease;
+    }
+    .history-item:hover {
+      border-color: rgba(86,217,180,.3);
+      box-shadow: 0 15px 35px rgba(86,217,180,.1);
     }
 
     .history-image-wrapper {
@@ -86,7 +73,7 @@
       width: 90%;
       box-shadow: 0 18px 40px rgba(0,0,0,.6);
       border: 1px solid rgba(255,255,255,.18);
-      color: #ffffff;             /* semua teks putih */
+      color: #ffffff;
     }
     .dm-dialog h5 {
       color: #ffffff;
@@ -94,66 +81,213 @@
     .dm-dialog p {
       color: #ffffff;
     }
+
+    /* Styling Tabs */
+    #historyTabs .nav-link {
+      transition: all 0.2s ease;
+      border: 1px solid transparent !important;
+      color: #fff !important;
+      background: transparent;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    #historyTabs .nav-link.active {
+      background: rgba(86,217,180,.18) !important;
+      border: 1px solid rgba(86,217,180,.35) !important;
+      color: var(--brand) !important;
+      box-shadow: 0 4px 14px rgba(86,217,180,.18);
+    }
+    #historyTabs .nav-link:hover:not(.active) {
+      background: rgba(255,255,255,.08);
+    }
   </style>
 
-  <!-- HISTORY GRID -->
-  <div class="row g-4" id="historyList">
-    {% for result in history %}
-      <div class="col-md-6 col-lg-6">
-        <div class="history-item">
-          <!-- Header -->
-          <div class="p-4 pb-3">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <div style="max-width: 70%;">
-                <div class="fw-bold fs-5 mb-1">
-                  {{ result.filename|slice:"-25:" }}...
-                </div>
-                <div class="text-muted small">
-                  <span class="me-3">{{ result.lahan }}</span>
-                  <span>{{ result.created_at|date:"H:i d/m" }}</span>
-                </div>
-              </div>
-              <div>
-                <div class="badge bg-success fs-4 px-4 py-3 mb-2 shadow">
-                  🍉 {{ result.manual_count|default:result.count }}
-                </div>
-                <div class="text-success fw-semibold small text-center">
-                  Terdeteksi
-                </div>
-              </div>
-            </div>
-          </div>
+  <!-- Navigation Tabs -->
+  <ul class="nav nav-pills mb-4" id="historyTabs" role="tablist" style="background: rgba(255,255,255,0.05); padding: 6px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); width: fit-content;">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active px-4 py-2" id="semangka-tab" data-bs-toggle="pill" data-bs-target="#semangka-pane" type="button" role="tab" aria-controls="semangka-pane" aria-selected="true">
+        🍉 Hitung Semangka
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link px-4 py-2" id="bobot-tab" data-bs-toggle="pill" data-bs-target="#bobot-pane" type="button" role="tab" aria-controls="bobot-pane" aria-selected="false">
+        ⚖️ Hitung Bobot
+      </button>
+    </li>
+  </ul>
 
-          <!-- Gambar -->
-          <div class="history-image-wrapper">
-            <img src="{{ result.bbox_path }}"
-                 class="history-item-image"
-                 alt="Deteksi {{ result.count }} semangka"
-                 loading="lazy">
+  <!-- Tab Content -->
+  <div class="tab-content" id="historyTabsContent">
+    
+    <!-- PANE SEMANGKA -->
+    <div class="tab-pane fade show active" id="semangka-pane" role="tabpanel" aria-labelledby="semangka-tab" tabindex="0">
+      <!-- Stats -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="stat h-100">
+            <div class="stat-label">Total Orthophoto (Semangka)</div>
+            <div class="stat-value">{{ total_ortho|default:0 }}</div>
+            <div class="stat-change">Tersimpan</div>
           </div>
-
-          <!-- Tombol Action -->
-          <div class="history-footer">
-            <a href="{% url 'counter:detail_orthophoto' result.id %}"
-               class="btn btn-sm btn-outline-light flex-grow-1">
-              🔍 Detail
-            </a>
-            <button type="button"
-                    class="btn btn-sm btn-outline-danger delete-btn"
-                    data-pk="{{ result.id }}"
-                    data-filename="{{ result.filename|slice:':20' }}...">
-              🗑️ Hapus
-            </button>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="stat h-100">
+            <div class="stat-label">Total Semangka Terdeteksi</div>
+            <div class="stat-value">{{ total_detected|default:0 }}</div>
+            <div class="stat-change text-success">Terdeteksi</div>
           </div>
         </div>
       </div>
-    {% empty %}
-      <div class="col-12 text-center py-8 text-muted">
-        <div class="mb-4 fs-1">📂</div>
-        <h4 class="mb-3">Belum ada history</h4>
-        <p class="lead">Upload beberapa orthophoto untuk melihat history.</p>
+
+      <!-- HISTORY GRID SEMANGKA -->
+      <div class="row g-4" id="historyListSemangka">
+        {% for result in history %}
+          <div class="col-md-6 col-lg-6">
+            <div class="history-item">
+              <!-- Header -->
+              <div class="p-4 pb-3">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div style="max-width: 70%;">
+                    <div class="fw-bold fs-5 mb-1" title="{{ result.filename }}">
+                      {{ result.filename|slice:"-25:" }}...
+                    </div>
+                    <div class="text-muted small">
+                      <span class="me-3">{{ result.lahan }}</span>
+                      <span>{{ result.created_at|date:"H:i d/m" }}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="badge bg-success fs-4 px-4 py-3 mb-2 shadow">
+                      🍉 {{ result.manual_count|default:result.count }}
+                    </div>
+                    <div class="text-success fw-semibold small text-center">
+                      Terdeteksi
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gambar -->
+              <div class="history-image-wrapper">
+                <img src="{{ result.bbox_path }}"
+                     class="history-item-image"
+                     alt="Deteksi {{ result.count }} semangka"
+                     loading="lazy">
+              </div>
+
+              <!-- Tombol Action -->
+              <div class="history-footer">
+                <a href="{% url 'counter:detail_orthophoto' result.id %}"
+                   class="btn btn-sm btn-outline-light flex-grow-1">
+                  🔍 Detail
+                </a>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger delete-btn"
+                        data-pk="{{ result.id }}"
+                        data-type="semangka"
+                        data-filename="{{ result.filename|slice:':20' }}...">
+                  🗑️ Hapus
+                </button>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12 text-center py-5 text-muted">
+            <div class="mb-4 fs-1">📂</div>
+            <h4 class="mb-3">Belum ada history semangka</h4>
+            <p class="lead">Upload beberapa orthophoto dengan fitur "Hitung Semangka" untuk melihat history.</p>
+          </div>
+        {% endfor %}
       </div>
-    {% endfor %}
+    </div>
+
+    <!-- PANE BOBOT -->
+    <div class="tab-pane fade" id="bobot-pane" role="tabpanel" aria-labelledby="bobot-tab" tabindex="0">
+      <!-- Stats -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="stat h-100">
+            <div class="stat-label">Total Orthophoto (Bobot)</div>
+            <div class="stat-value">{{ total_ortho_bobot|default:0 }}</div>
+            <div class="stat-change">Tersimpan</div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="stat h-100">
+            <div class="stat-label">Total Semangka Terklasifikasi</div>
+            <div class="stat-value">{{ total_deteksi_bobot|default:0 }}</div>
+            <div class="stat-change text-success">Terklasifikasi</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY GRID BOBOT -->
+      <div class="row g-4" id="historyListBobot">
+        {% for result in history_bobot %}
+          <div class="col-md-6 col-lg-6">
+            <div class="history-item">
+              <!-- Header -->
+              <div class="p-4 pb-3">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                <div style="max-width: 70%;">
+                  <div class="fw-bold fs-5 mb-1" title="{{ result.filename }}">
+                    {{ result.filename|slice:"-25:" }}...
+                  </div>
+                  <div class="text-muted small">
+                    <span class="me-3">{{ result.lahan }}</span>
+                    <span>{{ result.created_at|date:"H:i d/m" }}</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="badge bg-success fs-4 px-4 py-3 mb-2 shadow" style="background-image: linear-gradient(135deg, var(--brand), var(--brand-2)) !important; color: #0a0f20 !important;">
+                    ⚖️ {{ result.total_terdeteksi }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Breakdown Kelas -->
+              <div class="pt-2 border-top" style="border-color: rgba(255,255,255,.08) !important;">
+                <div class="row g-2">
+                  {% for r in result.get_rekap %}
+                    <div class="col-6 small text-muted d-flex align-items-center gap-1">
+                      <span class="dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color: {{ r.hex }}; box-shadow: 0 0 3px rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.2);"></span>
+                      Kelas {{ r.kelas|slice:"5:" }}: <span class="text-white fw-bold">{{ r.count }}</span>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              </div>
+
+              <!-- Gambar -->
+              <div class="history-image-wrapper">
+                <img src="{{ result.bbox_path }}"
+                     class="history-item-image"
+                     alt="Klasifikasi bobot {{ result.total_terdeteksi }} semangka"
+                     loading="lazy">
+              </div>
+
+              <!-- Tombol Action -->
+              <div class="history-footer">
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger delete-btn w-100"
+                        data-pk="{{ result.id }}"
+                        data-type="bobot"
+                        data-filename="{{ result.filename|slice:':20' }}...">
+                  🗑️ Hapus Hasil Ini
+                </button>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12 text-center py-5 text-muted">
+            <div class="mb-4 fs-1">📂</div>
+            <h4 class="mb-3">Belum ada history klasifikasi bobot</h4>
+            <p class="lead">Upload beberapa orthophoto dengan fitur "Hitung Bobot" untuk melihat history.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
   </div>
 
   <!-- MODAL KONFIRMASI HAPUS -->
@@ -194,13 +328,14 @@
     const dmCancel = document.getElementById("dmCancel");
     const dmConfirm = document.getElementById("dmConfirm");
 
-    let pendingDelete = { pk: null, btn: null };
+    let pendingDelete = { pk: null, btn: null, type: null };
 
     // buka modal saat klik Hapus
     document.querySelectorAll(".delete-btn").forEach(btn => {
       btn.addEventListener("click", function () {
         pendingDelete.pk = this.dataset.pk;
         pendingDelete.btn = this;
+        pendingDelete.type = this.dataset.type;
         dmFilename.textContent = this.dataset.filename;
         modal.style.display = "flex";
       });
@@ -209,14 +344,14 @@
     // tombol batal
     dmCancel.addEventListener("click", () => {
       modal.style.display = "none";
-      pendingDelete = { pk: null, btn: null };
+      pendingDelete = { pk: null, btn: null, type: null };
     });
 
     // klik backdrop tutup
     modal.addEventListener("click", e => {
       if (e.target === modal) {
         modal.style.display = "none";
-        pendingDelete = { pk: null, btn: null };
+        pendingDelete = { pk: null, btn: null, type: null };
       }
     });
 
@@ -226,8 +361,11 @@
 
       const pk = pendingDelete.pk;
       const btn = pendingDelete.btn;
+      const type = pendingDelete.type;
 
-      fetch(`/api/delete/${pk}/`, {
+      const deleteUrl = type === "bobot" ? `/api/delete-bobot/${pk}/` : `/api/delete/${pk}/`;
+
+      fetch(deleteUrl, {
         method: "POST",
         headers: {
           "X-CSRFToken": csrftoken,
@@ -239,17 +377,18 @@
         if (data.ok) {
           const col = btn.closest(".col-md-6, .col-lg-6");
           if (col) col.remove();
+          location.reload(); // reload untuk memperbarui total statistik
         } else {
           alert("Gagal hapus: " + (data.error || "unknown error"));
         }
         modal.style.display = "none";
-        pendingDelete = { pk: null, btn: null };
+        pendingDelete = { pk: null, btn: null, type: null };
       })
       .catch(err => {
         console.error(err);
         alert("Terjadi error saat menghapus.");
         modal.style.display = "none";
-        pendingDelete = { pk: null, btn: null };
+        pendingDelete = { pk: null, btn: null, type: null };
       });
     });
   </script>

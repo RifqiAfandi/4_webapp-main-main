@@ -1,0 +1,114 @@
+{% load bobot_tags %}
+<!-- counter/templates/counter/_live_bobot.html -->
+<div class="card-soft mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center p-4 border-bottom gap-3"
+       style="border-color: rgba(255,255,255,.1);">
+    <div>
+      <h5 class="mb-0">⚖️ Live Analisis Bobot Semangka</h5>
+      <small class="text-muted">Pilih hasil klasifikasi untuk ditampilkan</small>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      {% if all_bobot_list %}
+        <select id="selectBobotResult" class="form-select form-select-sm" style="min-width: 250px; background: var(--panel-2); border-color: var(--border); color: #fff; border-radius: 10px;">
+          {% for r in all_bobot_list %}
+            <option value="{{ r.pk }}">{{ r.filename|slice:"-25:" }} ({{ r.created_at|date:"d M, H:i" }})</option>
+          {% endfor %}
+        </select>
+      {% endif %}
+      <span class="badge bg-success fs-6 px-3 py-2">Live &#x2696;&#xFE0F;</span>
+    </div>
+  </div>
+
+  <div class="p-4">
+    {% for result in all_bobot_list %}
+      <div class="live-item-wrapper bobot-result-item" id="bobotResult_{{ result.pk }}" style="{% if not forloop.first %}display: none;{% endif %}">
+        <div class="live-item">
+          <div class="live-inner">
+            <div class="row g-3 align-items-stretch">
+              <div class="col-lg-9">
+                <div class="live-frame live-frame-fixed">
+                  <div class="zoom-wrapper">
+                    <img src="{{ result.bbox_path }}"
+                         alt="Hasil klasifikasi bobot"
+                         class="zoomable-img"
+                         loading="lazy">
+                  </div>
+                  <div class="d-flex gap-2 mt-2 px-2 pb-2">
+                    <button class="btn btn-ghost btn-sm zoom-reset-btn" type="button">&#x1F504; Reset Zoom</button>
+                    <span class="small" style="color: var(--muted); align-self:center;">
+                      Scroll untuk zoom, drag untuk geser
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-3">
+                <div class="live-side live-side-fixed">
+                  <div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <div>
+                        <div class="kpi-title">Total terdeteksi</div>
+                        <p class="kpi-value mb-0">{{ result.total_terdeteksi }}</p>
+                      </div>
+                      <div class="kpi-badge">
+                        <span>&#x2696;&#xFE0F;</span>
+                        <span>{{ result.total_terdeteksi }}</span>
+                      </div>
+                    </div>
+
+                    <div class="meta-row">
+                      <div class="meta-label">Lahan</div>
+                      <div class="meta-value">{{ result.lahan }}</div>
+                    </div>
+                    <div class="meta-row">
+                      <div class="meta-label">Waktu</div>
+                      <div class="meta-value">{{ result.created_at|date:"d M Y, H:i" }}</div>
+                    </div>
+
+                    <div class="mt-3">
+                      <div class="kpi-title mb-2">Rincian kategori</div>
+                      {% for r in result.get_rekap %}
+                        <div class="meta-row">
+                          <div class="meta-label d-flex align-items-center gap-2">
+                            <span class="dot" style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color: {{ r.hex }}; box-shadow: 0 0 4px rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.2);"></span>
+                            Kelas {{ r.kelas|slice:"5:" }} ({{ r.range }})
+                          </div>
+                          <div class="meta-value">{{ r.count }} buah</div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                  <!-- Tombol hapus -->
+                  <div class="mt-3 pt-2" style="border-top: 1px solid rgba(255,255,255,.1);">
+                    <button
+                      class="btn btn-sm w-100 delete-bobot-btn"
+                      style="background:rgba(255,71,87,.12); border:1px solid rgba(255,71,87,.25); color:#ff4757;"
+                      data-pk="{{ result.pk }}"
+                      data-url="{% url 'counter:delete_bobot_result' result.pk %}"
+                      onclick="deleteBobotResult(this)"
+                      type="button">
+                      🗑️ Hapus Hasil Ini
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="text-center py-5" style="color: rgba(255,255,255,.75);">
+        <div class="mb-3 fs-1">&#x2696;&#xFE0F;</div>
+        <h4 class="mb-2" style="color:#fff;">Belum ada hasil klasifikasi bobot</h4>
+        <p class="mb-0">Upload orthophoto dengan fitur "Hitung Bobot" untuk melihat hasilnya.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  if (window.initBobotSwitcher) {
+    window.initBobotSwitcher();
+  }
+</script>

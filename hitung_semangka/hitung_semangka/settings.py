@@ -128,7 +128,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'semangka_db',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': '2002',
         'HOST': 'localhost',
         'PORT': '5432',
     }

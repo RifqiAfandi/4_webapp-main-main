@@ -1,1 +1,9 @@
 /venv
+/tes
+hitung_semangka/counter/tes/
+hitung_semangka/counter/bobot.pt
+**/__pycache__/
+*.pyc
+hitung_semangka/media/orthophoto/Kediri_2-1-orthophoto*
+hitung_semangka/media/orthophoto_bobot/
+hitung_semangka/media/orthophoto_boxes/Kediri_2-1-orthophoto*
