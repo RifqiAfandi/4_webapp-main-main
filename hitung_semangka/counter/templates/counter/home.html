@@ -1,6 +1,7 @@
 {% load bobot_tags %}
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,30 +16,34 @@
   <style>
     :root {
       --bg: #0f1220;
-      --panel: rgba(255,255,255,.08);
-      --panel-2: rgba(255,255,255,.10);
-      --border: rgba(255,255,255,.15);
+      --panel: rgba(255, 255, 255, .08);
+      --panel-2: rgba(255, 255, 255, .10);
+      --border: rgba(255, 255, 255, .15);
       --text: #ffffff;
-      --muted: rgba(255,255,255,.85);
+      --muted: rgba(255, 255, 255, .85);
       --brand: #56d9b4;
       --brand-2: #33b79b;
-      --shadow: 0 18px 40px rgba(0,0,0,.35);
+      --shadow: 0 18px 40px rgba(0, 0, 0, .35);
       --radius: 16px;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       font-family: "Poppins", system-ui, sans-serif;
       background:
-        radial-gradient(1200px 600px at 20% -10%, rgba(86,217,180,.18), transparent 55%),
-        radial-gradient(900px 500px at 100% 0%, rgba(120,140,255,.14), transparent 50%),
+        radial-gradient(1200px 600px at 20% -10%, rgba(86, 217, 180, .18), transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, rgba(120, 140, 255, .14), transparent 50%),
         var(--bg);
       color: var(--text);
       line-height: 1.6;
     }
 
-    .app-shell { min-height: 100vh; }
+    .app-shell {
+      min-height: 100vh;
+    }
 
     /* Sidebar */
     .sidebar-desktop {
@@ -48,7 +53,7 @@
       height: 100vh;
       padding: 24px 18px;
       border-right: 1px solid var(--border);
-      background: rgba(10,12,20,.85);
+      background: rgba(10, 12, 20, .85);
       backdrop-filter: blur(20px);
     }
 
@@ -58,8 +63,8 @@
       border-radius: 16px;
       display: grid;
       place-items: center;
-      background: rgba(86,217,180,.25);
-      border: 1px solid rgba(86,217,180,.35);
+      background: rgba(86, 217, 180, .25);
+      border: 1px solid rgba(86, 217, 180, .35);
       color: var(--brand);
       font-size: 1.5rem;
       font-weight: 700;
@@ -78,36 +83,43 @@
       transition: all .2s ease;
       margin-bottom: 8px;
     }
+
     .nav-pill:hover {
-      background: rgba(255,255,255,.10);
+      background: rgba(255, 255, 255, .10);
       border-color: var(--border);
       transform: translateX(4px);
     }
+
     .nav-pill.active {
-      background: rgba(86,217,180,.18);
-      border-color: rgba(86,217,180,.35);
+      background: rgba(86, 217, 180, .18);
+      border-color: rgba(86, 217, 180, .35);
       color: var(--brand);
-      box-shadow: 0 4px 14px rgba(86,217,180,.18);
+      box-shadow: 0 4px 14px rgba(86, 217, 180, .18);
     }
+
     .nav-pill .dot {
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      background: rgba(255,255,255,.30);
+      background: rgba(255, 255, 255, .30);
       flex-shrink: 0;
     }
+
     .nav-pill.active .dot {
       background: var(--brand);
-      box-shadow: 0 0 0 2px rgba(255,255,255,.2);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, .2);
     }
 
-    .main { padding: 32px 24px; }
+    .main {
+      padding: 32px 24px;
+    }
 
     @media (min-width: 992px) {
       .sidebar-desktop {
         width: 280px !important;
         flex: 0 0 280px !important;
       }
+
       .main {
         flex: 1 1 0% !important;
         width: auto !important;
@@ -131,8 +143,8 @@
 
     /* Cards */
     .card-soft {
-      background: rgba(20,24,40,.95);
-      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(20, 24, 40, .95);
+      border: 1px solid rgba(255, 255, 255, .15);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
@@ -145,7 +157,9 @@
       padding: 18px 22px;
     }
 
-    .card-soft .card-body { padding: 22px; }
+    .card-soft .card-body {
+      padding: 22px;
+    }
 
     /* Form */
     .form-label {
@@ -168,9 +182,9 @@
 
     .form-select:focus,
     .form-control:focus {
-      border-color: rgba(86,217,180,.45);
-      box-shadow: 0 0 0 .25rem rgba(86,217,180,.15);
-      background: rgba(255,255,255,.15);
+      border-color: rgba(86, 217, 180, .45);
+      box-shadow: 0 0 0 .25rem rgba(86, 217, 180, .15);
+      background: rgba(255, 255, 255, .15);
       color: var(--text);
       outline: none;
     }
@@ -189,13 +203,14 @@
       font-weight: 700;
       border-radius: 12px;
       padding: 12px 24px;
-      box-shadow: 0 4px 15px rgba(86,217,180,.3);
+      box-shadow: 0 4px 15px rgba(86, 217, 180, .3);
       transition: all .2s ease;
     }
+
     .btn-brand:hover {
       background: linear-gradient(135deg, var(--brand-2), #2aa67f);
       transform: translateY(-1px);
-      box-shadow: 0 8px 25px rgba(86,217,180,.4);
+      box-shadow: 0 8px 25px rgba(86, 217, 180, .4);
       color: #0a0f20;
     }
 
@@ -207,9 +222,10 @@
       padding: 12px 20px;
       transition: all .2s ease;
     }
+
     .btn-ghost:hover {
-      background: rgba(255,255,255,.10);
-      border-color: rgba(255,255,255,.25);
+      background: rgba(255, 255, 255, .10);
+      border-color: rgba(255, 255, 255, .25);
       color: var(--text);
       transform: translateY(-1px);
     }
@@ -218,12 +234,15 @@
     .stat {
       padding: 18px 18px;
       border-radius: 16px;
-      background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      border: 1px solid rgba(255,255,255,.15);
+      background: linear-gradient(135deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .04));
+      border: 1px solid rgba(255, 255, 255, .15);
       height: 100%;
       transition: all .2s ease;
     }
-    .stat:hover { transform: translateY(-3px); }
+
+    .stat:hover {
+      transform: translateY(-3px);
+    }
 
     .stat-label {
       color: var(--muted);
@@ -231,6 +250,7 @@
       margin-bottom: 8px;
       font-weight: 600;
     }
+
     .stat-value {
       font-size: 2.0rem;
       font-weight: 900;
@@ -238,6 +258,7 @@
       margin-bottom: 4px;
       color: var(--text);
     }
+
     .stat-change {
       font-size: .82rem;
       color: var(--brand);
@@ -245,80 +266,88 @@
     }
 
     /* Live item (new layout) */
-    .live-item{
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.15);
+    .live-item {
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid rgba(255, 255, 255, .15);
       border-radius: 18px;
       overflow: hidden;
-      box-shadow: 0 10px 36px rgba(0,0,0,.25);
+      box-shadow: 0 10px 36px rgba(0, 0, 0, .25);
       transition: all .25s ease;
     }
-    .live-item:hover{
+
+    .live-item:hover {
       transform: translateY(-3px);
-      box-shadow: 0 20px 50px rgba(86,217,180,.20);
-      border-color: rgba(86,217,180,.35);
+      box-shadow: 0 20px 50px rgba(86, 217, 180, .20);
+      border-color: rgba(86, 217, 180, .35);
     }
 
-    .live-inner{ padding: 18px; }
+    .live-inner {
+      padding: 18px;
+    }
 
-    .live-frame{
+    .live-frame {
       border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255, 255, 255, .12);
+      background: rgba(0, 0, 0, .18);
       overflow: hidden;
     }
-    .live-frame img{
-      display:block;
+
+    .live-frame img {
+      display: block;
       width: 100%;
       height: auto;
     }
 
-    .live-side{
+    .live-side {
       border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(20,24,40,.55);
+      border: 1px solid rgba(255, 255, 255, .12);
+      background: rgba(20, 24, 40, .55);
       padding: 16px;
     }
 
-    .kpi-title{
-      color: rgba(255,255,255,.78);
+    .kpi-title {
+      color: rgba(255, 255, 255, .78);
       font-weight: 700;
       font-size: .9rem;
       margin-bottom: 6px;
     }
-    .kpi-value{
+
+    .kpi-value {
       font-size: 2.1rem;
       font-weight: 900;
       letter-spacing: -.6px;
       margin: 0;
       line-height: 1.1;
     }
-    .kpi-badge{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
+
+    .kpi-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
       padding: 10px 12px;
       border-radius: 14px;
-      background: rgba(86,217,180,.14);
-      border: 1px solid rgba(86,217,180,.25);
+      background: rgba(86, 217, 180, .14);
+      border: 1px solid rgba(86, 217, 180, .25);
       color: #dffbf3;
       font-weight: 900;
       white-space: nowrap;
     }
 
-    .meta-row{
-      display:flex;
+    .meta-row {
+      display: flex;
       justify-content: space-between;
       gap: 12px;
       padding: 10px 0;
-      border-top: 1px solid rgba(255,255,255,.10);
+      border-top: 1px solid rgba(255, 255, 255, .10);
     }
-    .meta-label{
-      color: rgba(255,255,255,.70);
+
+    .meta-label {
+      color: rgba(255, 255, 255, .70);
       font-size: .85rem;
     }
-    .meta-value{
-      color: rgba(255,255,255,.92);
+
+    .meta-value {
+      color: rgba(255, 255, 255, .92);
       font-weight: 700;
       font-size: .9rem;
       text-align: right;
@@ -328,40 +357,70 @@
       max-width: 280px;
     }
 
-    @media (min-width: 992px){
-      .live-side{
+    @media (min-width: 992px) {
+      .live-side {
         position: sticky;
-        top: 92px; /* aman dari navbar fixed-top di mobile */
+        top: 92px;
+        /* aman dari navbar fixed-top di mobile */
       }
     }
 
     /* Responsive */
     @media (max-width: 991.98px) {
-      .main { padding: 20px 16px; }
-      .page-title { font-size: 1.75rem; }
-      .meta-value{ max-width: 100%; }
+      .main {
+        padding: 20px 16px;
+      }
+
+      .page-title {
+        font-size: 1.75rem;
+      }
+
+      .meta-value {
+        max-width: 100%;
+      }
     }
 
     @media (max-width: 576px) {
-      .main { padding: 16px 12px; }
-      .stat-value { font-size: 1.7rem; }
-      .live-inner{ padding: 14px; }
+      .main {
+        padding: 16px 12px;
+      }
+
+      .stat-value {
+        font-size: 1.7rem;
+      }
+
+      .live-inner {
+        padding: 14px;
+      }
     }
+
     /* Feature selector box */
     .feature-box {
       border: 1px solid var(--border);
       transition: all .2s ease;
     }
-    .feature-radio:checked + .feature-box {
-      border-color: rgba(86,217,180,.55);
-      background: rgba(86,217,180,.14);
-      box-shadow: 0 4px 14px rgba(86,217,180,.18);
+
+    .feature-radio:checked+.feature-box {
+      border-color: rgba(86, 217, 180, .55);
+      background: rgba(86, 217, 180, .14);
+      box-shadow: 0 4px 14px rgba(86, 217, 180, .18);
     }
 
     /* Zoom wrapper */
-    .zoom-wrapper { border-radius: 16px; }
-    .zoomable-img { width: 100%; height: auto; cursor: grab; touch-action: none; }
-    .zoomable-img:active { cursor: grabbing; }
+    .zoom-wrapper {
+      border-radius: 16px;
+    }
+
+    .zoomable-img {
+      width: 100%;
+      height: auto;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .zoomable-img:active {
+      cursor: grabbing;
+    }
 
     .text-muted {
       color: rgba(255, 255, 255, 0.6) !important;
@@ -374,10 +433,11 @@
       justify-content: center;
       background: rgba(0, 0, 0, 0.25);
       border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
+      border: 1px solid rgba(255, 255, 255, .12);
       overflow: hidden;
       position: relative;
     }
+
     .live-frame-fixed .zoom-wrapper {
       flex: 1;
       height: 100%;
@@ -388,6 +448,7 @@
       align-items: center;
       justify-content: center;
     }
+
     .live-frame-fixed img {
       max-height: 100%;
       max-width: 100%;
@@ -395,6 +456,7 @@
       height: auto;
       object-fit: contain;
     }
+
     .live-side-fixed {
       height: 480px;
       display: flex;
@@ -402,7 +464,7 @@
       justify-content: space-between;
       overflow-y: auto;
       scrollbar-width: thin;
-      scrollbar-color: rgba(255,255,255,.2) transparent;
+      scrollbar-color: rgba(255, 255, 255, .2) transparent;
     }
   </style>
 </head>
@@ -410,9 +472,10 @@
 <body>
   <!-- Mobile Topbar -->
   <nav class="navbar navbar-dark fixed-top d-lg-none py-2"
-       style="background: rgba(15,18,32,.98); border-bottom: 1px solid rgba(255,255,255,.15); backdrop-filter: blur(20px);">
+    style="background: rgba(15,18,32,.98); border-bottom: 1px solid rgba(255,255,255,.15); backdrop-filter: blur(20px);">
     <div class="container-fluid">
-      <button class="navbar-toggler btn btn-ghost p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMobile">
+      <button class="navbar-toggler btn btn-ghost p-2" type="button" data-bs-toggle="offcanvas"
+        data-bs-target="#sidebarMobile">
         <span class="navbar-toggler-icon"></span>
       </button>
       <span class="navbar-brand mb-0 h1 fw-bold text-truncate flex-grow-1 px-3">Deteksi Semangka</span>
@@ -421,14 +484,14 @@
 
   <!-- Mobile Sidebar -->
   <div class="offcanvas offcanvas-start d-lg-none text-bg-dark" id="sidebarMobile"
-       style="background: rgba(15,18,32,.99); border-right: 1px solid rgba(255,255,255,.15);">
+    style="background: rgba(15,18,32,.99); border-right: 1px solid rgba(255,255,255,.15);">
     <div class="offcanvas-header border-bottom" style="border-color: rgba(255,255,255,.15);">
       <h5 class="offcanvas-title fw-bold">Navigasi</h5>
       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body pt-3">
       <div class="d-flex align-items-center gap-3 mb-4 p-3"
-           style="background: rgba(86,217,180,.12); border-radius: 14px; border: 1px solid rgba(86,217,180,.25);">
+        style="background: rgba(86,217,180,.12); border-radius: 14px; border: 1px solid rgba(86,217,180,.25);">
         <div class="brand-badge">🍉</div>
         <div>
           <div class="fw-bold">Deteksi Semangka</div>
@@ -440,11 +503,11 @@
         <span class="dot"></span> Dashboard
       </a>
       <a href="{% url 'counter:history' %}"
-         class="nav-pill {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
+        class="nav-pill {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
         <span class="dot"></span> History
       </a>
       <a href="{% url 'counter:logout' %}" class="nav-pill text-danger mt-4"
-         style="background: rgba(255, 71, 87, 0.1); border-color: rgba(255, 71, 87, 0.2);">
+        style="background: rgba(255, 71, 87, 0.1); border-color: rgba(255, 71, 87, 0.2);">
         <span class="dot" style="background: #ff4757; box-shadow: none;"></span> Keluar Akun
       </a>
     </div>
@@ -455,7 +518,7 @@
       <!-- Desktop Sidebar -->
       <aside class="col-lg-3 col-xl-2 d-none d-lg-block sidebar-desktop">
         <div class="d-flex align-items-center gap-3 mb-5 p-3"
-             style="background: rgba(86,217,180,.12); border-radius: 16px; border: 1px solid rgba(86,217,180,.25);">
+          style="background: rgba(86,217,180,.12); border-radius: 16px; border: 1px solid rgba(86,217,180,.25);">
           <div class="brand-badge">🍉</div>
           <div>
             <div class="fw-bold fs-4">Deteksi Semangka</div>
@@ -468,17 +531,17 @@
             <span class="dot"></span> Dashboard
           </a>
           <a href="{% url 'counter:history' %}"
-             class="nav-pill {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
+            class="nav-pill {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
             <span class="dot"></span> History
           </a>
           <a href="{% url 'counter:logout' %}" class="nav-pill text-danger mt-4"
-             style="background: rgba(255, 71, 87, 0.1); border-color: rgba(255, 71, 87, 0.2);">
+            style="background: rgba(255, 71, 87, 0.1); border-color: rgba(255, 71, 87, 0.2);">
             <span class="dot" style="background: #ff4757; box-shadow: none;"></span> Keluar Akun
           </a>
         </nav>
 
         <div class="mt-5 p-4 text-center"
-             style="background: rgba(255,255,255,.04); border: 1px dashed rgba(255,255,255,.25); border-radius: 16px; color: var(--muted);">
+          style="background: rgba(255,255,255,.04); border: 1px dashed rgba(255,255,255,.25); border-radius: 16px; color: var(--muted);">
           <div class="mb-2">💡 Tips</div>
           <div class="small">Upload orthophoto resolusi tinggi (min. 2K) untuk akurasi deteksi maksimal.</div>
         </div>
@@ -496,14 +559,17 @@
 
         <!-- Messages Alert Block -->
         {% if messages %}
-          <div class="messages mb-4">
-            {% for message in messages %}
-              <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %} alert-dismissible fade show" role="alert" style="border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid {% if message.tags == 'error' %}#ff4757{% elif message.tags == 'success' %}#56d9b4{% else %}rgba(255,255,255,0.25){% endif %}; color: #fff;">
-                {{ message }}
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            {% endfor %}
+        <div class="messages mb-4">
+          {% for message in messages %}
+          <div
+            class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %} alert-dismissible fade show"
+            role="alert"
+            style="border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid {% if message.tags == 'error' %}#ff4757{% elif message.tags == 'success' %}#56d9b4{% else %}rgba(255,255,255,0.25){% endif %}; color: #fff;">
+            {{ message }}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
+          {% endfor %}
+        </div>
         {% endif %}
 
         <!-- Stats Grid -->
@@ -529,9 +595,9 @@
               <div class="stat-value" style="font-size:1.4rem;">{{ latest_bobot_obj.range_dominan|default:"-" }}</div>
               <div class="stat-change">
                 {% if latest_bobot_obj %}
-                  Kelas {{ latest_bobot_obj.kelas_dominan|slice:"5:" }} &bull; {{ latest_bobot_obj.jumlah_dominan }} buah
+                Kelas {{ latest_bobot_obj.kelas_dominan|slice:"5:" }} &bull; {{ latest_bobot_obj.jumlah_dominan }} buah
                 {% else %}
-                  Belum ada data
+                Belum ada data
                 {% endif %}
               </div>
             </div>
@@ -551,7 +617,8 @@
                 <label class="form-label">Pilih Fitur</label>
                 <div class="row g-3 mb-4">
                   <div class="col-md-6">
-                    <input type="radio" name="fitur" id="fiturSemangka" value="semangka" class="d-none feature-radio" checked>
+                    <input type="radio" name="fitur" id="fiturSemangka" value="semangka" class="d-none feature-radio"
+                      checked>
                     <label for="fiturSemangka" class="stat h-100 d-block feature-box" style="cursor:pointer;">
                       <div class="stat-label">🍉 Hitung Semangka</div>
                       <div class="small" style="color: var(--muted);">Hitung jumlah semangka pada lahan.</div>
@@ -561,15 +628,13 @@
                     <input type="radio" name="fitur" id="fiturBobot" value="bobot" class="d-none feature-radio">
                     <label for="fiturBobot" class="stat h-100 d-block feature-box" style="cursor:pointer;">
                       <div class="stat-label">⚖️ Hitung Bobot</div>
-                      <div class="small" style="color: var(--muted);">Klasifikasi semangka berdasarkan kategori bobot.</div>
+                      <div class="small" style="color: var(--muted);">Klasifikasi semangka berdasarkan kategori bobot.
+                      </div>
                     </label>
                   </div>
                 </div>
 
-                <form method="POST"
-                      enctype="multipart/form-data"
-                      id="uploadForm"
-                      action="{% url 'counter:home' %}">
+                <form method="POST" enctype="multipart/form-data" id="uploadForm" action="{% url 'counter:home' %}">
                   {% csrf_token %}
 
                   <div class="row g-4">
@@ -620,18 +685,19 @@
           <!-- Live Analysis -->
           <div class="card-soft mb-4">
             <div class="d-flex flex-wrap justify-content-between align-items-center p-4 border-bottom gap-3"
-                 style="border-color: rgba(255,255,255,.1);">
+              style="border-color: rgba(255,255,255,.1);">
               <div>
                 <h5 class="mb-0">📊 Live Analisis Deteksi Semangka</h5>
                 <small class="text-muted">Pilih hasil deteksi untuk ditampilkan</small>
               </div>
               <div class="d-flex align-items-center gap-3">
                 {% if all_results_list %}
-                  <select id="selectSemangkaResult" class="form-select form-select-sm" style="min-width: 250px; background: var(--panel-2); border-color: var(--border); color: #fff; border-radius: 10px;">
-                    {% for r in all_results_list %}
-                      <option value="{{ r.pk }}">{{ r.filename|slice:"-25:" }} ({{ r.created_at|date:"d M, H:i" }})</option>
-                    {% endfor %}
-                  </select>
+                <select id="selectSemangkaResult" class="form-select form-select-sm"
+                  style="min-width: 250px; background: var(--panel-2); border-color: var(--border); color: #fff; border-radius: 10px;">
+                  {% for r in all_results_list %}
+                  <option value="{{ r.pk }}">{{ r.filename|slice:"-25:" }} ({{ r.created_at|date:"d M, H:i" }})</option>
+                  {% endfor %}
+                </select>
                 {% endif %}
                 <span class="badge bg-success fs-6 px-3 py-2">Live 🍉</span>
               </div>
@@ -639,85 +705,83 @@
 
             <div id="liveList" class="p-4">
               {% for result in all_results_list %}
-                <div class="live-item-wrapper semangka-result-item" id="semangkaResult_{{ result.pk }}" style="{% if not forloop.first %}display: none;{% endif %}">
-                  <div class="live-item">
-                    <div class="live-inner">
-                      <div class="row g-3 align-items-stretch">
-                        <!-- KIRI: gambar -->
-                        <div class="col-lg-9">
-                          <div class="live-frame live-frame-fixed">
-                            <div class="zoom-wrapper">
-                              <img src="{{ result.bbox_path }}"
-                                   alt="Deteksi {{ result.manual_count|default:result.count }} semangka"
-                                   class="zoomable-img"
-                                   loading="lazy">
-                            </div>
-                            <div class="d-flex gap-2 mt-2 px-2 pb-2">
-                              <button class="btn btn-ghost btn-sm zoom-reset-btn" type="button">&#x1F504; Reset Zoom</button>
-                              <span class="small" style="color: var(--muted); align-self:center;">
-                                Scroll untuk zoom, drag untuk geser
-                              </span>
-                            </div>
+              <div class="live-item-wrapper semangka-result-item" id="semangkaResult_{{ result.pk }}"
+                style="{% if not forloop.first %}display: none;{% endif %}">
+                <div class="live-item">
+                  <div class="live-inner">
+                    <div class="row g-3 align-items-stretch">
+                      <!-- KIRI: gambar -->
+                      <div class="col-lg-9">
+                        <div class="live-frame live-frame-fixed">
+                          <div class="zoom-wrapper">
+                            <img src="{{ result.bbox_path }}"
+                              alt="Deteksi {{ result.manual_count|default:result.count }} semangka" class="zoomable-img"
+                              loading="lazy">
+                          </div>
+                          <div class="d-flex gap-2 mt-2 px-2 pb-2">
+                            <button class="btn btn-ghost btn-sm zoom-reset-btn" type="button">&#x1F504; Reset
+                              Zoom</button>
+                            <span class="small" style="color: var(--muted); align-self:center;">
+                              Scroll untuk zoom, drag untuk geser
+                            </span>
                           </div>
                         </div>
+                      </div>
 
-                        <!-- KANAN: info -->
-                        <div class="col-lg-3">
-                          <div class="live-side live-side-fixed">
-                            <div>
-                              <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                  <div class="kpi-title">Jumlah semangka terdeteksi</div>
-                                  <p class="kpi-value mb-0">{{ result.manual_count|default:result.count }}</p>
-                                </div>
-                                <div class="kpi-badge">
-                                  <span>🍉</span>
-                                  <span>{{ result.manual_count|default:result.count }}</span>
-                                </div>
+                      <!-- KANAN: info -->
+                      <div class="col-lg-3">
+                        <div class="live-side live-side-fixed">
+                          <div>
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                              <div>
+                                <div class="kpi-title">Jumlah semangka terdeteksi</div>
+                                <p class="kpi-value mb-0">{{ result.manual_count|default:result.count }}</p>
                               </div>
-
-                              <div class="meta-row">
-                                <div class="meta-label">Nama file</div>
-                                <div class="meta-value" title="{{ result.filename }}">{{ result.filename }}</div>
-                              </div>
-                              <div class="meta-row">
-                                <div class="meta-label">Lahan</div>
-                                <div class="meta-value">{{ result.lahan }}</div>
-                              </div>
-                              <div class="meta-row">
-                                <div class="meta-label">Waktu</div>
-                                <div class="meta-value">{{ result.created_at|date:"d M Y, H:i" }}</div>
-                              </div>
-                              <div class="meta-row">
-                                <div class="meta-label">Status</div>
-                                <div class="meta-value" style="color: var(--brand);">Terdeteksi</div>
+                              <div class="kpi-badge">
+                                <span>🍉</span>
+                                <span>{{ result.manual_count|default:result.count }}</span>
                               </div>
                             </div>
 
-                            <!-- Tombol hapus semangka -->
-                            <div class="mt-3 pt-2" style="border-top: 1px solid rgba(255,255,255,.1);">
-                              <button
-                                class="btn btn-sm w-100 delete-semangka-btn"
-                                style="background:rgba(255,71,87,.12); border:1px solid rgba(255,71,87,.25); color:#ff4757;"
-                                data-pk="{{ result.pk }}"
-                                data-url="{% url 'counter:delete_result' result.pk %}"
-                                onclick="deleteSemangkaResult(this)"
-                                type="button">
-                                🗑️ Hapus Hasil Ini
-                              </button>
+                            <div class="meta-row">
+                              <div class="meta-label">Nama file</div>
+                              <div class="meta-value" title="{{ result.filename }}">{{ result.filename }}</div>
                             </div>
+                            <div class="meta-row">
+                              <div class="meta-label">Lahan</div>
+                              <div class="meta-value">{{ result.lahan }}</div>
+                            </div>
+                            <div class="meta-row">
+                              <div class="meta-label">Waktu</div>
+                              <div class="meta-value">{{ result.created_at|date:"d M Y, H:i" }}</div>
+                            </div>
+                            <div class="meta-row">
+                              <div class="meta-label">Status</div>
+                              <div class="meta-value" style="color: var(--brand);">Terdeteksi</div>
+                            </div>
+                          </div>
+
+                          <!-- Tombol hapus semangka -->
+                          <div class="mt-3 pt-2" style="border-top: 1px solid rgba(255,255,255,.1);">
+                            <button class="btn btn-sm w-100 delete-semangka-btn"
+                              style="background:rgba(255,71,87,.12); border:1px solid rgba(255,71,87,.25); color:#ff4757;"
+                              data-pk="{{ result.pk }}" data-url="{% url 'counter:delete_result' result.pk %}"
+                              onclick="deleteSemangkaResult(this)" type="button">
+                              🗑️ Hapus Hasil Ini
+                            </button>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
               {% empty %}
-                <div class="text-center py-5" style="color: rgba(255,255,255,.75);">
-                  <div class="mb-3 fs-1">📈</div>
-                  <h4 class="mb-2" style="color:#fff;">Belum ada hasil deteksi</h4>
-                  <p class="mb-0">Upload orthophoto pertama kamu untuk melihat hasil analisis otomatis.</p>
-                </div>
+              <div class="text-center py-5" style="color: rgba(255,255,255,.75);">
+                <div class="mb-3 fs-1">📈</div>
+                <h4 class="mb-2" style="color:#fff;">Belum ada hasil deteksi</h4>
+                <p class="mb-0">Upload orthophoto pertama kamu untuk melihat hasil analisis otomatis.</p>
+              </div>
               {% endfor %}
             </div>
           </div>
@@ -750,7 +814,7 @@
           if (elDet) elDet.textContent = msg.total_detected;
         }
       };
-    } catch(e) { console.warn('WebSocket unavailable:', e); }
+    } catch (e) { console.warn('WebSocket unavailable:', e); }
 
     // ── Switch form action & live analysis visibility sesuai radio yang dipilih ──
     const formUpload = document.getElementById('uploadForm');
@@ -764,12 +828,12 @@
     function updateVisibility() {
       const checkedRadio = document.querySelector('.feature-radio:checked');
       if (!checkedRadio) return;
-      
+
       const val = checkedRadio.value;
       if (formUpload) {
         formUpload.action = (val === 'bobot') ? urlBobot : urlSemangka;
       }
-      
+
       if (val === 'bobot') {
         if (liveSemangka) liveSemangka.style.display = 'none';
         if (liveBobot) liveBobot.style.display = 'block';
@@ -803,11 +867,11 @@
         if (!formUpload.checkValidity()) {
           return;
         }
-        
+
         const checkedRadio = document.querySelector('.feature-radio:checked');
         const val = checkedRadio ? checkedRadio.value : 'semangka';
         const targetContainer = (val === 'bobot') ? liveBobot : liveSemangka;
-        
+
         if (targetContainer) {
           targetContainer.innerHTML = `
             <div class="card-soft mb-4">
@@ -851,7 +915,7 @@
     }
 
     // Fungsi switcher untuk bobot, dipanggil saat selectBobot dideteksi (bisa dideklarasikan di sini agar di-bind saat tag dimuat)
-    window.initBobotSwitcher = function() {
+    window.initBobotSwitcher = function () {
       const selectBobot = document.getElementById('selectBobotResult');
       if (selectBobot) {
         selectBobot.addEventListener('change', (e) => {
@@ -867,126 +931,59 @@
         });
       }
     };
-    
+
     // Jalankan init switcher untuk bobot secara berkala / langsung
     document.addEventListener('DOMContentLoaded', () => {
       if (window.initBobotSwitcher) window.initBobotSwitcher();
     });
 
     // ── Delete result (semangka & bobot) via global handlers ──
-    window.deleteSemangkaResult = function(btn) {
+    window.deleteSemangkaResult = function (btn) {
       if (!confirm('Hapus hasil deteksi semangka ini?')) return;
       const url = btn.dataset.url;
       fetch(url, {
         method: 'POST',
-        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
       })
-      .then(r => r.json())
-      .then(data => {
-        if (data.ok) {
-          location.reload();
-        } else {
-          alert('Gagal hapus: ' + (data.error || 'unknown'));
-        }
-      })
-      .catch(() => alert('Error jaringan saat hapus.'));
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            location.reload();
+          } else {
+            alert('Gagal hapus: ' + (data.error || 'unknown'));
+          }
+        })
+        .catch(() => alert('Error jaringan saat hapus.'));
     };
 
-    window.deleteBobotResult = function(btn) {
+    window.deleteBobotResult = function (btn) {
       if (!confirm('Hapus hasil klasifikasi bobot ini?')) return;
       const url = btn.dataset.url;
       fetch(url, {
         method: 'POST',
-        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
       })
-      .then(r => r.json())
-      .then(data => {
-        if (data.ok) {
-          location.reload();
-        } else {
-          alert('Gagal hapus: ' + (data.error || 'unknown'));
-        }
-      })
-      .catch(() => alert('Error jaringan saat hapus.'));
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            location.reload();
+          } else {
+            alert('Gagal hapus: ' + (data.error || 'unknown'));
+          }
+        })
+        .catch(() => alert('Error jaringan saat hapus.'));
     };
 
     // ── Panzoom ──
     try {
-      const panzoomInstances = new Map();
-
-      function initPanzoomForImg(img) {
-        if (!img) return;
-        if (panzoomInstances.has(img)) {
-          const instance = panzoomInstances.get(img);
-          try {
-            if (img.offsetWidth > 0 && img.offsetHeight > 0) {
-              instance.reset();
-            }
-          } catch(e) {}
-          return;
-        }
-
-        // Only initialize if the image is visible and loaded
-        if (img.offsetWidth === 0 || img.offsetHeight === 0 || !img.complete || img.naturalWidth === 0) {
-          return;
-        }
-
-        try {
-          const panzoomInstance = Panzoom(img, {
-            maxScale: 50,
-            minScale: 1,
-            contain: 'inside'
-          });
-
-          panzoomInstances.set(img, panzoomInstance);
-
-          // Add wheel zoom handler to the parent container
-          const parent = img.parentElement;
-          if (parent) {
-            parent.addEventListener('wheel', (e) => {
-              e.preventDefault();
-              panzoomInstance.zoomWithWheel(e);
-            });
-          }
-
-          // Setup reset button
-          const resetBtn = img.closest('.live-frame')?.querySelector('.zoom-reset-btn');
-          if (resetBtn) {
-            resetBtn.addEventListener('click', () => {
-              panzoomInstance.reset();
-            });
-          }
-        } catch(err) {
-          console.warn('Error initializing Panzoom on image:', img, err);
-        }
-      }
-
-      window.triggerPanzoomInit = function() {
-        setTimeout(() => {
-          document.querySelectorAll('.zoomable-img').forEach((img) => {
-            initPanzoomForImg(img);
-          });
-        }, 50);
-      };
-
-      // Initialize visible and loaded images on load
-      const images = document.querySelectorAll('.zoomable-img');
-      images.forEach((img) => {
-        if (img.complete) {
-          initPanzoomForImg(img);
-        }
-        img.addEventListener('load', () => {
-          initPanzoomForImg(img);
-        });
+      document.querySelectorAll('.zoomable-img').forEach((img) => {
+        const panzoomInstance = Panzoom(img, { maxScale: 50, minScale: 1 });
+        img.parentElement.addEventListener('wheel', (e) => panzoomInstance.zoomWithWheel(e));
+        const resetBtn = img.closest('.live-frame')?.querySelector('.zoom-reset-btn');
+        if (resetBtn) resetBtn.addEventListener('click', () => panzoomInstance.reset());
       });
-
-      // Run once immediately and after 200ms
-      window.triggerPanzoomInit();
-      setTimeout(window.triggerPanzoomInit, 200);
-
-    } catch(e) {
-      console.warn('Panzoom unavailable:', e);
-    }
+    } catch (e) { console.warn('Panzoom unavailable:', e); }
   </script>
 </body>
+
 </html>
