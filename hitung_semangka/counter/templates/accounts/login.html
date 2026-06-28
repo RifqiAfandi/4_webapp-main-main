@@ -176,14 +176,12 @@
       <button type="submit" class="btn btn-brand w-100">Masuk</button>
     </form>
 
-    {% comment %}
     <div class="divider">atau</div>
     <a class="btn btn-ghost-soft w-100 d-flex align-items-center justify-content-center gap-2"
       href="{% provider_login_url 'google' %}">
       <span style="width:10px;height:10px;border-radius:50%;background:#4285F4;display:inline-block"></span>
       Login dengan Google
     </a>
-    {% endcomment %}
 
     <div class="auth-footer mt-3 text-center">
       Belum punya akun? <a href="{% url 'counter:signup' %}">Daftar di sini</a>

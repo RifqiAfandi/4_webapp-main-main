@@ -194,14 +194,12 @@
       <button type="submit" class="btn btn-brand w-100">Daftar</button>
     </form>
 
-    {% comment %}
     <div class="divider">atau</div>
     <a class="btn btn-ghost-soft w-100 d-flex align-items-center justify-content-center gap-2"
       href="{% provider_login_url 'google' %}">
       <span style="width:10px;height:10px;border-radius:50%;background:#4285F4;display:inline-block"></span>
       Daftar dengan Google
     </a>
-    {% endcomment %}
 
     <div class="auth-footer">
       Sudah punya akun? <a href="{% url 'counter:login' %}">Masuk di sini</a>

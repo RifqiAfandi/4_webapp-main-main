@@ -791,7 +791,10 @@
     updateVisibility();
 
     featureRadios.forEach(r => {
-      r.addEventListener('change', updateVisibility);
+      r.addEventListener('change', () => {
+        updateVisibility();
+        if (window.triggerPanzoomInit) window.triggerPanzoomInit();
+      });
     });
 
     // ── Loading state saat submit form ──
@@ -843,6 +846,7 @@
             item.style.display = 'none';
           }
         });
+        if (window.triggerPanzoomInit) window.triggerPanzoomInit();
       });
     }
 
@@ -859,6 +863,7 @@
               item.style.display = 'none';
             }
           });
+          if (window.triggerPanzoomInit) window.triggerPanzoomInit();
         });
       }
     };
@@ -907,13 +912,81 @@
 
     // ── Panzoom ──
     try {
-      document.querySelectorAll('.zoomable-img').forEach((img) => {
-        const panzoomInstance = Panzoom(img, { maxScale: 5, minScale: 1, contain: 'outside' });
-        img.parentElement.addEventListener('wheel', (e) => panzoomInstance.zoomWithWheel(e));
-        const resetBtn = img.closest('.live-frame')?.querySelector('.zoom-reset-btn');
-        if (resetBtn) resetBtn.addEventListener('click', () => panzoomInstance.reset());
+      const panzoomInstances = new Map();
+
+      function initPanzoomForImg(img) {
+        if (!img) return;
+        if (panzoomInstances.has(img)) {
+          const instance = panzoomInstances.get(img);
+          try {
+            if (img.offsetWidth > 0 && img.offsetHeight > 0) {
+              instance.reset();
+            }
+          } catch(e) {}
+          return;
+        }
+
+        // Only initialize if the image is visible and loaded
+        if (img.offsetWidth === 0 || img.offsetHeight === 0 || !img.complete || img.naturalWidth === 0) {
+          return;
+        }
+
+        try {
+          const panzoomInstance = Panzoom(img, {
+            maxScale: 50,
+            minScale: 1,
+            contain: 'inside'
+          });
+
+          panzoomInstances.set(img, panzoomInstance);
+
+          // Add wheel zoom handler to the parent container
+          const parent = img.parentElement;
+          if (parent) {
+            parent.addEventListener('wheel', (e) => {
+              e.preventDefault();
+              panzoomInstance.zoomWithWheel(e);
+            });
+          }
+
+          // Setup reset button
+          const resetBtn = img.closest('.live-frame')?.querySelector('.zoom-reset-btn');
+          if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+              panzoomInstance.reset();
+            });
+          }
+        } catch(err) {
+          console.warn('Error initializing Panzoom on image:', img, err);
+        }
+      }
+
+      window.triggerPanzoomInit = function() {
+        setTimeout(() => {
+          document.querySelectorAll('.zoomable-img').forEach((img) => {
+            initPanzoomForImg(img);
+          });
+        }, 50);
+      };
+
+      // Initialize visible and loaded images on load
+      const images = document.querySelectorAll('.zoomable-img');
+      images.forEach((img) => {
+        if (img.complete) {
+          initPanzoomForImg(img);
+        }
+        img.addEventListener('load', () => {
+          initPanzoomForImg(img);
+        });
       });
-    } catch(e) { console.warn('Panzoom unavailable:', e); }
+
+      // Run once immediately and after 200ms
+      window.triggerPanzoomInit();
+      setTimeout(window.triggerPanzoomInit, 200);
+
+    } catch(e) {
+      console.warn('Panzoom unavailable:', e);
+    }
   </script>
 </body>
 </html>
