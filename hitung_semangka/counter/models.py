@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class Orthophoto(models.Model):
     lahan = models.CharField(max_length=100)
@@ -12,6 +13,13 @@ class Orthophoto(models.Model):
     task_id = models.CharField(max_length=100, null=True, blank=True)
 
 class DetectionResult(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="detection_results"
+    )
     filename = models.CharField(max_length=255)
     lahan = models.CharField(max_length=100)
     image_path = models.CharField(max_length=500)
@@ -33,6 +41,13 @@ class BoundingBox(models.Model):
 
 
 class BobotResult(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="bobot_results"
+    )
     filename = models.CharField(max_length=255)
     lahan = models.CharField(max_length=100)
     image_path = models.CharField(max_length=500)

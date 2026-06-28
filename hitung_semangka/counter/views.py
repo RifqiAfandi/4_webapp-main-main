@@ -129,6 +129,7 @@ def home(request):
 
             # simpan DetectionResult
             result = DetectionResult.objects.create(
+                user=request.user,
                 filename=image.name,
                 lahan=lahan,
                 image_path=image_url,
@@ -160,7 +161,7 @@ def home(request):
         return redirect("counter:home")
 
     # GET: tampilkan dashboard
-    all_results = DetectionResult.objects.all().order_by("-created_at")
+    all_results = DetectionResult.objects.filter(user=request.user).order_by("-created_at")
     latest = all_results[:1]
     history = all_results[1:]
 
@@ -175,9 +176,10 @@ def home(request):
     return render(request, "counter/home.html", context)
 
 
+@login_required(login_url="/accounts/login/")
 def detail_orthophoto(request, pk):
     try:
-        result = DetectionResult.objects.get(pk=pk)
+        result = DetectionResult.objects.get(pk=pk, user=request.user)
     except DetectionResult.DoesNotExist:
         raise Http404("Result not found")
 
@@ -193,9 +195,10 @@ def detail_orthophoto(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
+@login_required(login_url="/accounts/login/")
 def save_boxes(request, pk):
     try:
-        result = DetectionResult.objects.get(pk=pk)
+        result = DetectionResult.objects.get(pk=pk, user=request.user)
     except DetectionResult.DoesNotExist:
         return JsonResponse({"error": "Result not found"}, status=404)
 
@@ -224,12 +227,13 @@ def save_boxes(request, pk):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
 
+@login_required(login_url="/accounts/login/")
 def history(request):
-    all_results = DetectionResult.objects.all().order_by("-created_at")
+    all_results = DetectionResult.objects.filter(user=request.user).order_by("-created_at")
     latest = all_results[:1]
     history_qs = all_results[1:]
 
-    all_bobot = BobotResult.objects.all().order_by("-created_at")
+    all_bobot = BobotResult.objects.filter(user=request.user).order_by("-created_at")
 
     context = {
         "total_ortho": all_results.count(),
@@ -245,13 +249,14 @@ def history(request):
 
 
 @require_POST
+@login_required(login_url="/accounts/login/")
 def delete_result(request, pk):
     """
     Hapus 1 DetectionResult + file gambarnya (image & bbox).
     Dipanggil via fetch dari tombol 'Hapus' di history.
     """
     try:
-        result = DetectionResult.objects.get(pk=pk)
+        result = DetectionResult.objects.get(pk=pk, user=request.user)
     except DetectionResult.DoesNotExist:
         return JsonResponse({"ok": False, "error": "Not found"}, status=404)
 
@@ -305,6 +310,7 @@ def hitung_bobot(request):
             total_terdeteksi = sum(info["jumlah"] for info in rekap.values())
 
             result = BobotResult.objects.create(
+                user=request.user,
                 filename=image.name,
                 lahan=lahan,
                 image_path=image_url,
@@ -341,11 +347,11 @@ def hitung_bobot(request):
         return redirect("counter:hitung_bobot")
 
     # GET
-    all_bobot = BobotResult.objects.all().order_by("-created_at")
+    all_bobot = BobotResult.objects.filter(user=request.user).order_by("-created_at")
     latest_bobot = all_bobot[:1]
     history_bobot = all_bobot[1:]
 
-    all_semangka = DetectionResult.objects.all().order_by("-created_at")
+    all_semangka = DetectionResult.objects.filter(user=request.user).order_by("-created_at")
     latest_semangka = all_semangka[:1]
     history_semangka = all_semangka[1:]
 
@@ -366,13 +372,14 @@ def hitung_bobot(request):
 
 
 @require_POST
+@login_required(login_url="/accounts/login/")
 def delete_bobot_result(request, pk):
     """
     Hapus 1 BobotResult + file gambarnya (image & bbox).
     Dipanggil via fetch dari tombol 'Hapus' di Live Analisis Bobot.
     """
     try:
-        result = BobotResult.objects.get(pk=pk)
+        result = BobotResult.objects.get(pk=pk, user=request.user)
     except BobotResult.DoesNotExist:
         return JsonResponse({"ok": False, "error": "Not found"}, status=404)
 
